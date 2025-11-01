@@ -1,72 +1,38 @@
 # psyscan.py
-# PSYSCAN v1.0 – Scanner méta-psychique du discours public
+# PSYSCAN v1.0 – Scanner méta-psychique du discours public (français robuste)
 # PSYSCAN révèle la structure du pouvoir — pas les individus
 # Licence : AGPL-3.0 + ETHICAL_GUIDELINES.md
 # Auteur : NAHT LIKE YOU THINK – DOI : 10.5281/zenodo.xxxxxxx
 
 import re
-import nltk
 import os
 from collections import Counter, defaultdict
 import textwrap
 from typing import List, Dict
 
-# === TÉLÉCHARGEMENT NLTK (exécuter une fois) ===
-# nltk.download('punkt')
-# nltk.download('stopwords')
-# nltk.download('averaged_perceptron_tagger')
-# nltk.download('maxent_ne_chunker')
-# nltk.download('words')
-# nltk.download('wordnet')
-# nltk.download('omw-1.4')
-# nltk.download('vader_lexicon')
-# pip install textblob
+# === INSTALLATION (exécuter une fois) ===
+# pip install spacy
+# python -m spacy download fr_core_news_sm
 
-from nltk.corpus import stopwords, wordnet
-from nltk.stem import WordNetLemmatizer
-from nltk import pos_tag, ne_chunk
-from textblob import TextBlob
+import spacy
 
 # ========================
-# GESTION ROBUSTE DES DONNÉES NLTK
+# CHARGEMENT DU MODÈLE FRANÇAIS
 # ========================
-nltk_data_dir = "/tmp/nltk_data"
-
-# Créer le dossier si nécessaire
-os.makedirs(nltk_data_dir, exist_ok=True)
-
-# Ajouter au chemin NLTK
-if nltk_data_dir not in nltk.data.path:
-    nltk.data.path.append(nltk_data_dir)
-
-# Fonction de téléchargement sécurisé
-def ensure_nltk_resources():
-    required = [
-        'stopwords', 'punkt', 'wordnet', 'omw-1.4',
-        'averaged_perceptron_tagger', 'maxent_ne_chunker', 'words'
-    ]
-    print("Vérification des ressources NLTK...")
-    for resource in required:
-        try:
-            nltk.data.find(f'tokenizers/{resource}' if resource == 'punkt' else f'corpora/{resource}')
-        except LookupError:
-            print(f"  → Téléchargement de {resource}...")
-            nltk.download(resource, download_dir=nltk_data_dir, quiet=True)
-    print("Ressources NLTK prêtes.\n")
-
-# Exécuter au démarrage
-ensure_nltk_resources()
+print("Chargement du modèle spaCy français (fr_core_news_sm)...", end=" ")
+try:
+    nlp = spacy.load("fr_core_news_sm")
+    print("Modèle chargé.\n")
+except OSError:
+    print("\nERREUR : Modèle 'fr_core_news_sm' non trouvé.")
+    print("Exécutez dans le terminal :\n")
+    print("    python -m spacy download fr_core_news_sm\n")
+    exit(1)
 
 # ========================
 # CONFIG & STOPWORDS
 # ========================
-try:
-    STOPWORDS = set(stopwords.words('french'))
-except Exception as e:
-    print(f"Erreur critique stopwords : {e}")
-    raise
-
-STOPWORDS.update({
+STOPWORDS = {
     'les', 'des', 'du', 'au', 'aux', 'et', 'ou', 'par', 'pour', 'dans', 'sur', 'avec', 'sans',
     'sous', 'vers', 'depuis', 'jusqu', 'après', 'avant', 'pendant', 'entre', 'contre', 'malgré',
     'grâce', 'chez', 'près', 'loin', 'ici', 'là', 'où', 'quand', 'comment', 'pourquoi', 'qui',
@@ -78,36 +44,9 @@ STOPWORDS.update({
     'quoique', 'afin', 'parce', 'même', 'seulement', 'surtout', 'notamment', 'ainsi', 'enfin',
     'finalement', 'bref', 'voici', 'voilà', 'cependant', 'néanmoins', 'pourtant', 'toutefois',
     'd’ailleurs', 'en effet', 'en réalité', 'en fait', 'autrement dit', 'c’est-à-dire'
-})
+}
 
 ORAL_ARTIFACTS = {'euh', 'heu', 'hum', 'ah', 'bon', 'voilà', 'donc', 'alors', 'hein', 'ben', 'bah'}
-
-# ========================
-# LEMMATISATION
-# ========================
-lemmatizer = WordNetLemmatizer()
-
-def get_wordnet_pos(treebank_tag):
-    if treebank_tag.startswith('V'): return wordnet.VERB
-    elif treebank_tag.startswith('N'): return wordnet.NOUN
-    elif treebank_tag.startswith('J'): return wordnet.ADJ
-    elif treebank_tag.startswith('R'): return wordnet.ADV
-    else: return wordnet.NOUN
-
-# ========================
-# NER (CORRIGÉ : return après boucle)
-# ========================
-def extract_entities(text: str) -> set:
-    try:
-        chunked = ne_chunk(pos_tag(nltk.word_tokenize(text)))
-        entities = set()
-        for chunk in chunked:
-            if hasattr(chunk, 'label'):
-                entity = ' '.join(c[0] for c in chunk)
-                entities.add(entity.lower())
-        return entities
-    except Exception:
-        return set()
 
 # ========================
 # CORPUS VULGUS v1.0
@@ -162,30 +101,36 @@ VULGUS_CORPUS = {
 }
 
 # ========================
-# CLASSE PSYSCAN
+# CLASSE PSYSCAN (spaCy-powered)
 # ========================
 class PSYSCAN:
     def __init__(self):
-        pass
+        self.nlp = nlp  # Modèle français partagé
 
     def nettoyer_texte(self, texte: str) -> str:
+        """Supprime artefacts oraux et normalise"""
         for artifact in ORAL_ARTIFACTS:
             texte = re.sub(rf'\b{artifact}\b', '', texte, flags=re.IGNORECASE)
         texte = re.sub(r'[^\w\s\.\?\!]', ' ', texte)
         texte = re.sub(r'\s+', ' ', texte).strip()
         return texte.lower()
 
-    def lemmatiser(self, tokens: List[str]) -> List[str]:
-        tagged = pos_tag(tokens)
+    def extraire_tokens_lem(self, texte: str) -> List[str]:
+        """Tokenisation + Lemmatisation + Filtrage stop-words (spaCy)"""
+        doc = self.nlp(texte)
         return [
-            lemmatizer.lemmatize(word, get_wordnet_pos(tag))
-            for word, tag in tagged
+            token.lemma_.lower()
+            for token in doc
+            if token.is_alpha and not token.is_stop and len(token.lemma_) > 2
         ]
 
-    def filtrer_ner(self, tokens: List[str], entities: set) -> List[str]:
-        return [t for t in tokens if t not in entities and len(t) > 2 and t not in STOPWORDS]
+    def extraire_entites(self, texte: str) -> set:
+        """NER français précis"""
+        doc = self.nlp(texte)
+        return {ent.text.lower() for ent in doc.ents}
 
     def cooccurrence(self, tokens: List[str], s1: str, window: int = 5) -> List[str]:
+        """Cooccurrences dans une fenêtre de ±5 mots"""
         indices = [i for i, t in enumerate(tokens) if t == s1]
         coocs = defaultdict(int)
         for idx in indices:
@@ -195,27 +140,38 @@ class PSYSCAN:
             for word in context:
                 if word != s1 and word not in STOPWORDS:
                     coocs[word] += 1
-        # Retourne les 2 meilleurs, ou rien
         return [word for word, _ in sorted(coocs.items(), key=lambda x: x[1], reverse=True)[:2]]
 
     def polarite_s1(self, texte: str, s1: str) -> str:
-        blob = TextBlob(texte)
-        sentences_with_s1 = [
-            s for s in blob.sentences
-            if re.search(rf'\b{s1}\b', s.lower())
-        ]
-        if not sentences_with_s1:
+        """Analyse de sentiment lexicale légère (français)"""
+        POSITIFS = {'bon', 'bien', 'fort', 'grand', 'victoire', 'progrès', 'espoir', 'fierté', 'courage', 'unité', 'réussite', 'avenir', 'ensemble'}
+        NEGATIFS = {'mauvais', 'crise', 'échec', 'peur', 'danger', 'faible', 'division', 'refus', 'perte', 'problème', 'difficulté'}
+
+        doc = self.nlp(texte)
+        score = 0
+        count = 0
+
+        for sent in doc.sents:
+            if re.search(rf'\b{s1}\b', sent.text.lower()):
+                sent_text = sent.text.lower()
+                score += sum(1 for w in POSITIFS if w in sent_text)
+                score -= sum(1 for w in NEGATIFS if w in sent_text)
+                count += 1
+
+        if count == 0:
             return "neutre"
-        polarity = sum(s.sentiment.polarity for s in sentences_with_s1) / len(sentences_with_s1)
-        return "positif" if polarity > 0.1 else "négatif" if polarity < -0.1 else "neutre"
+        avg = score / count
+        return "positif" if avg > 0.3 else "négatif" if avg < -0.3 else "neutre"
 
     # === ÉTAPE 1 : Ψ-SCAN ===
     def psi_scan(self, texte: str) -> dict:
         texte_net = self.nettoyer_texte(texte)
-        tokens = nltk.word_tokenize(texte_net, language='french')
-        entities = extract_entities(texte)
-        lemmas = self.lemmatiser(tokens)
-        filtered = self.filtrer_ner(lemmas, entities)
+        tokens = self.extraire_tokens_lem(texte_net)
+        entities = self.extraire_entites(texte)
+
+        # Filtrer entités nommées
+        filtered = [t for t in tokens if t not in entities]
+
         freq = Counter(filtered)
         total = sum(freq.values())
         if total == 0:
@@ -232,8 +188,6 @@ class PSYSCAN:
         res2 = min(75 + count_s1 * 2, 99)
         indice_psi = round((centralite + res1 + res2) / 3, 1)
         polarite = self.polarite_s1(texte, s1)
-
-        # Stockage du compte brut de s1
         s1_raw_count = len(re.findall(rf'\b{s1}\b', texte.lower()))
 
         return {
@@ -258,7 +212,6 @@ class PSYSCAN:
         coocs = scan['coocs']
         top_mots = scan['top_mots']
 
-        # Fallback si coocs vide
         if coocs:
             boucle = ' → '.join(coocs)
         elif len(top_mots) > 1:
@@ -266,12 +219,10 @@ class PSYSCAN:
         else:
             boucle = "(aucune boucle détectée)"
 
-        faille = f"glissement je→nous ({scan['je']}→{scan['nous']})"
-        polarite = scan['polarite']
-        axiome = f"Le {s1.upper()} ({polarite}) suture la faille via la boucle {boucle}."
+        axiome = f"Le {s1.upper()} ({scan['polarite']}) suture la faille via la boucle {boucle}."
         return {'axiome': axiome, 'boucle': boucle}
 
-    # === ÉTAPE 3 : Ψ-VULGUS v1.0 ===
+    # === ÉTAPE 3 : Ψ-VULGUS ===
     def psi_vulgus(self, scan: dict, logue: dict, titre: str = "") -> str:
         C = VULGUS_CORPUS
         s1 = scan['s1']
@@ -279,7 +230,7 @@ class PSYSCAN:
         polarite = scan['polarite']
         ratio = scan['ratio_nous_je']
 
-        # === ICÔNE NUANCÉE ===
+        # Icône d’état
         if indice > 90:
             icone = "FORCLUSION"
         elif indice > 80:
@@ -291,10 +242,10 @@ class PSYSCAN:
         else:
             icone = "STABLE"
 
-        # === ANCRAGE ===
+        # Ancrage
         ancrage = C["ancrage"].get(s1, f"L’obsession de « {s1} » comme acte de pouvoir")
 
-        # === FISSURE ===
+        # Fissure
         if ratio > 3:
             fissure = C["fissure"]["nous_dominant"]
         elif scan['je'] == 0:
@@ -304,17 +255,17 @@ class PSYSCAN:
         else:
             fissure = C["fissure"]["je_isolé"]
 
-        # === PROJET ===
+        # Projet
         projet = C["projet"]["suture_sociale"] if scan['nous'] > 10 else C["projet"]["maitrise_directe"]
 
-        # === RITUEL (avec count brut) ===
+        # Rituel
         count_s1 = scan.get('s1_raw_count', 0)
         rituel = f"Répéter « {s1} » {count_s1} fois pour faire taire le doute."
 
-        # === CONTRAT ===
+        # Contrat
         contrat = f"Vous devez {s1} — sinon tout s’effondre."
 
-        # === DÉPENDANCE ===
+        # Dépendance
         if indice < 50:
             dependance = C["dependance"]["equilibre"]
         elif s1 == "refuser":
@@ -326,11 +277,13 @@ class PSYSCAN:
         else:
             dependance = C["dependance"]["action"]
 
-        # === RISQUE ===
+        # Risque
         risque = C["risque"]["institution"] if scan['nous'] > scan['je'] * 2 else C["risque"]["personne"]
 
-        # === CONCLUSION ===
+        # Conclusion
         conclusion = C["conclusion"][icone]
+
+        # Rapport final
         rapport = f"""[Rapport PSYSCAN v1.0]{titre}
 
 #### ANALYSE DE LA NARRATIVE INCONSCIENTE DU DISCOURS
@@ -362,7 +315,7 @@ class PSYSCAN:
 
 
 # ========================
-# EXÉCUTION
+# EXÉCUTION CLI
 # ========================
 if __name__ == "__main__":
     scanner = PSYSCAN()
