@@ -5,30 +5,26 @@
 # Auteur : NAHT LIKE YOU THINK – DOI : 10.5281/zenodo.xxxxxxx
 
 import re
+import nltk
 from collections import Counter, defaultdict
 import textwrap
 from typing import List, Dict
 
-# Chargement dynamique de spaCy (compatible Streamlit Cloud)
-try:
-    import spacy
-    from spacy import util
-    # Essayer de charger le modèle (installé via requirements.txt)
-    nlp = spacy.load("fr_core_news_sm")
-    print("Modèle spaCy français chargé avec succès.")
-except OSError:
-    # Fallback pour tests locaux (télécharge si absent)
-    import subprocess
-    import sys
-    print("Modèle spaCy absent. Téléchargement automatique...")
-    subprocess.check_call([sys.executable, "-m", "spacy", "download", "fr_core_news_sm", "--quiet"])
-    import spacy
-    nlp = spacy.load("fr_core_news_sm")
-    print("Modèle téléchargé et chargé.")
-except Exception as e:
-    print(f"ERREUR spaCy critique : {e}")
-    print("Assurez-vous que 'fr_core_news_sm' est installé via requirements.txt pour Streamlit Cloud.")
-    raise
+# === TÉLÉCHARGEMENT NLTK (exécuter une fois) ===
+# nltk.download('punkt')
+# nltk.download('stopwords')
+# nltk.download('averaged_perceptron_tagger')
+# nltk.download('maxent_ne_chunker')
+# nltk.download('words')
+# nltk.download('wordnet')
+# nltk.download('omw-1.4')
+# nltk.download('vader_lexicon')
+# pip install textblob
+
+from nltk.corpus import stopwords, wordnet
+from nltk.stem import WordNetLemmatizer
+from nltk import pos_tag, ne_chunk
+from textblob import TextBlob
 
 # ========================
 # CONFIG & STOPWORDS
