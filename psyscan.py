@@ -185,6 +185,7 @@ filtered = self.filtrer_ner(lemmas, entities)
 
 freq = Counter(filtered)
 total = sum(freq.values())
+
 if total == 0:
   return {'error': 'Aucun mot significatif détecté'}
 
