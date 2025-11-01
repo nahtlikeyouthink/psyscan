@@ -69,8 +69,9 @@ def extract_entities(text: str) -> set:
         entity = ' '.join(c[0] for c in chunk)
         entities.add(entity.lower())
         return entities
-        except:
-          return set()
+
+  except:
+    return set()
 
 # ========================
 # CORPUS VULGUS v1.0
