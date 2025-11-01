@@ -1,49 +1,50 @@
 # psyscan.py
-# PSYSCAN v1.0 – Scanner méta-psychique du discours public (français robuste)
+# PSYSCAN v1.0 – Scanner méta-psychique du discours public (français robuste, Streamlit-ready)
 # PSYSCAN révèle la structure du pouvoir — pas les individus
 # Licence : AGPL-3.0 + ETHICAL_GUIDELINES.md
 # Auteur : NAHT LIKE YOU THINK – DOI : 10.5281/zenodo.xxxxxxx
 
 import re
-import os
 from collections import Counter, defaultdict
 import textwrap
 from typing import List, Dict
 
-# === INSTALLATION (exécuter une fois) ===
-# pip install spacy
-# python -m spacy download fr_core_news_sm
-
-import spacy
-
-# ========================
-# CHARGEMENT DU MODÈLE FRANÇAIS
-# ========================
-print("Chargement du modèle spaCy français (fr_core_news_sm)...", end=" ")
+# Chargement dynamique de spaCy (compatible Streamlit Cloud)
 try:
-    nlp = spacy.load("fr_core_news_sm")
-    print("Modèle chargé.\n")
+    import spacy
+    from spacy import util
+    # Essayer de charger le modèle (installé via requirements.txt)
+    nlp = spacy.load("fr_core_news_sm")
+    print("Modèle spaCy français chargé avec succès.")
 except OSError:
-    print("\nERREUR : Modèle 'fr_core_news_sm' non trouvé.")
-    print("Exécutez dans le terminal :\n")
-    print("    python -m spacy download fr_core_news_sm\n")
-    exit(1)
+    # Fallback pour tests locaux (télécharge si absent)
+    import subprocess
+    import sys
+    print("Modèle spaCy absent. Téléchargement automatique...")
+    subprocess.check_call([sys.executable, "-m", "spacy", "download", "fr_core_news_sm", "--quiet"])
+    import spacy
+    nlp = spacy.load("fr_core_news_sm")
+    print("Modèle téléchargé et chargé.")
+except Exception as e:
+    print(f"ERREUR spaCy critique : {e}")
+    print("Assurez-vous que 'fr_core_news_sm' est installé via requirements.txt pour Streamlit Cloud.")
+    raise
 
 # ========================
 # CONFIG & STOPWORDS
 # ========================
 STOPWORDS = {
-    'les', 'des', 'du', 'au', 'aux', 'et', 'ou', 'par', 'pour', 'dans', 'sur', 'avec', 'sans',
-    'sous', 'vers', 'depuis', 'jusqu', 'après', 'avant', 'pendant', 'entre', 'contre', 'malgré',
-    'grâce', 'chez', 'près', 'loin', 'ici', 'là', 'où', 'quand', 'comment', 'pourquoi', 'qui',
-    'que', 'quoi', 'dont', 'lequel', 'laquelle', 'lesquels', 'lesquelles', 'celui', 'celle',
-    'ceux', 'celles', 'tout', 'tous', 'toute', 'toutes', 'plus', 'moins', 'très', 'trop',
-    'peu', 'assez', 'autant', 'aussi', 'encore', 'déjà', 'toujours', 'jamais', 'souvent',
-    'rarement', 'parfois', 'quelquefois', 'bientôt', 'tard', 'hier', 'aujourd’hui', 'demain',
-    'maintenant', 'alors', 'donc', 'car', 'mais', 'ni', 'si', 'comme', 'lorsque', 'puisque',
-    'quoique', 'afin', 'parce', 'même', 'seulement', 'surtout', 'notamment', 'ainsi', 'enfin',
-    'finalement', 'bref', 'voici', 'voilà', 'cependant', 'néanmoins', 'pourtant', 'toutefois',
-    'd’ailleurs', 'en effet', 'en réalité', 'en fait', 'autrement dit', 'c’est-à-dire'
+    'les', 'des', 'du', 'au', 'aux', 'et', 'ou', 'par', 'pour', 'dans', 'sur', 'avec', 'sans',
+    'sous', 'vers', 'depuis', 'jusqu', 'après', 'avant', 'pendant', 'entre', 'contre', 'malgré',
+    'grâce', 'chez', 'près', 'loin', 'ici', 'là', 'où', 'quand', 'comment', 'pourquoi', 'qui',
+    'que', 'quoi', 'dont', 'lequel', 'laquelle', 'lesquels', 'lesquelles', 'celui', 'celle',
+    'ceux', 'celles', 'tout', 'tous', 'toute', 'toutes', 'plus', 'moins', 'très', 'trop',
+    'peu', 'assez', 'autant', 'aussi', 'encore', 'déjà', 'toujours', 'jamais', 'souvent',
+    'rarement', 'parfois', 'quelquefois', 'bientôt', 'tard', 'hier', 'aujourd’hui', 'demain',
+    'maintenant', 'alors', 'donc', 'car', 'mais', 'ni', 'si', 'comme', 'lorsque', 'puisque',
+    'quoique', 'afin', 'parce', 'même', 'seulement', 'surtout', 'notamment', 'ainsi', 'enfin',
+    'finalement', 'bref', 'voici', 'voilà', 'cependant', 'néanmoins', 'pourtant', 'toutefois',
+    'd’ailleurs', 'en effet', 'en réalité', 'en fait', 'autrement dit', 'c’est-à-dire'
 }
 
 ORAL_ARTIFACTS = {'euh', 'heu', 'hum', 'ah', 'bon', 'voilà', 'donc', 'alors', 'hein', 'ben', 'bah'}
@@ -52,239 +53,239 @@ ORAL_ARTIFACTS = {'euh', 'heu', 'hum', 'ah', 'bon', 'voilà', 'donc', 'alors', '
 # CORPUS VULGUS v1.0
 # ========================
 VULGUS_CORPUS = {
-    "ancrage": {
-        "agir": "L’ordre d’agir comme un général",
-        "travail": "L’obsession du travail comme devoir sacré",
-        "refuser": "Le refus comme acte de survie",
-        "puissance": "La puissance comme prothèse verbale",
-        "peuple": "Le peuple comme bouclier collectif",
-        "révolution": "La révolution comme fantasme répétitif",
-        "écologie": "L’écologie comme mantra de survie",
-        "sécurité": "La sécurité comme armure du pouvoir",
-        "france": "La France comme totem national",
-        "liberté": "La liberté comme mot-piège",
-        "égalité": "L’égalité comme promesse répétée",
-        "réforme": "La réforme comme fuite en avant",
-        "crise": "La crise comme justification permanente",
-        "avenir": "L’avenir comme horizon vide"
-    },
-    "fissure": {
-        "nous_dominant": "Un sujet dissous dans le corps social pour éviter la singularité.",
-        "je_isolé": "Un leader qui se cache derrière son mot fétiche.",
-        "je_absent": "Un sujet effacé, remplacé par un 'nous' totalitaire.",
-        "maturite": "Un leader qui endosse le 'Je' pour mieux engager le 'Nous'."
-    },
-    "projet": {
-        "maitrise_directe": "Affirmer une direction sans le besoin de l'adhésion fusionnelle.",
-        "suture_sociale": "Tenter de masquer la fragilité individuelle par la force du nombre."
-    },
-    "dependance": {
-        "positif": "Si {s1} est détourné·e, le mythe vacille.",
-        "négatif": "Si {s1} n’est pas surmonté·e, tout s’effondre.",
-        "action": "Si l’action échoue, le discours devient ridicule.",
-        "equilibre": "Le mot-clé est intégré et son échec est géré par la structure.",
-        "refus_actif": "Si la contestation s’organise, l’identité discursive s’effondre.",
-        "default": "Si {s1} perd son sens, le vide apparaît."
-    },
-    "risque": {
-        "personne": "Un système qui s’est rendu dépendant de l’Homme-Providence.",
-        "institution": "Un système qui s’est rendu dépendant de l’Homme-Providence.",
-        "mot": "Un mot qui, s’il perd son sens, révèle le vide."
-    },
-    "conclusion": {
-        "FORCLUSION": "Un pouvoir en forclusion — le réel est nié.",
-        "SURRÉGIME": "Un pouvoir en surrégime — prêt à l’implosion.",
-        "ATTENTION": "Un pouvoir fragile — tenu par un fil.",
-        "STABLE": "Un pouvoir fondé sur le Réel — et non sur la répétition.",
-        "CONFIANCE": "Un pouvoir fondé sur le Réel — et non sur la répétition."
-    }
+    "ancrage": {
+        "agir": "L'ordre d’agir comme un général",
+        "travail": "L'obsession du travail comme devoir sacré",
+        "refuser": "Le refus comme acte de survie",
+        "puissance": "La puissance comme prothèse verbale",
+        "peuple": "Le peuple comme bouclier collectif",
+        "révolution": "La révolution comme fantasme répétitif",
+        "écologie": "L'écologie comme mantra de survie",
+        "sécurité": "La sécurité comme armure du pouvoir",
+        "france": "La France comme totem national",
+        "liberté": "La liberté comme mot-piège",
+        "égalité": "L'égalité comme promesse répétée",
+        "réforme": "La réforme comme fuite en avant",
+        "crise": "La crise comme justification permanente",
+        "avenir": "L'avenir comme horizon vide"
+    },
+    "fissure": {
+        "nous_dominant": "Un sujet dissous dans le corps social pour éviter la singularité.",
+        "je_isolé": "Un leader qui se cache derrière son mot fétiche.",
+        "je_absent": "Un sujet effacé, remplacé par un 'nous' totalitaire.",
+        "maturite": "Un leader qui endosse le 'Je' pour mieux engager le 'Nous'."
+    },
+    "projet": {
+        "maitrise_directe": "Affirmer une direction sans le besoin de l'adhésion fusionnelle.",
+        "suture_sociale": "Tenter de masquer la fragilité individuelle par la force du nombre."
+    },
+    "dependance": {
+        "positif": "Si {s1} est détourné·e, le mythe vacille.",
+        "négatif": "Si {s1} n’est pas surmonté·e, tout s’effondre.",
+        "action": "Si l'action échoue, le discours devient ridicule.",
+        "equilibre": "Le mot-clé est intégré et son échec est géré par la structure.",
+        "refus_actif": "Si la contestation s'organise, l'identité discursive s'effondre.",
+        "default": "Si {s1} perd son sens, le vide apparaît."
+    },
+    "risque": {
+        "personne": "Un système qui s'est rendu dépendant de l'Homme-Providence.",
+        "institution": "Un système qui s'est rendu dépendant de l'Homme-Providence.",
+        "mot": "Un mot qui, s'il perd son sens, révèle le vide."
+    },
+    "conclusion": {
+        "FORCLUSION": "Un pouvoir en forclusion — le réel est nié.",
+        "SURRÉGIME": "Un pouvoir en surrégime — prêt à l'implosion.",
+        "ATTENTION": "Un pouvoir fragile — tenu par un fil.",
+        "STABLE": "Un pouvoir fondé sur le Réel — et non sur la répétition.",
+        "CONFIANCE": "Un pouvoir fondé sur le Réel — et non sur la répétition."
+    }
 }
 
 # ========================
-# CLASSE PSYSCAN (spaCy-powered)
+# CLASSE PSYSCAN (spaCy-powered, Streamlit-ready)
 # ========================
 class PSYSCAN:
-    def __init__(self):
-        self.nlp = nlp  # Modèle français partagé
+    def __init__(self):
+        self.nlp = nlp  # Modèle français partagé
 
-    def nettoyer_texte(self, texte: str) -> str:
-        """Supprime artefacts oraux et normalise"""
-        for artifact in ORAL_ARTIFACTS:
-            texte = re.sub(rf'\b{artifact}\b', '', texte, flags=re.IGNORECASE)
-        texte = re.sub(r'[^\w\s\.\?\!]', ' ', texte)
-        texte = re.sub(r'\s+', ' ', texte).strip()
-        return texte.lower()
+    def nettoyer_texte(self, texte: str) -> str:
+        """Supprime artefacts oraux et normalise"""
+        for artifact in ORAL_ARTIFACTS:
+            texte = re.sub(rf'\b{artifact}\b', '', texte, flags=re.IGNORECASE)
+        texte = re.sub(r'[^\w\s\.\?\!]', ' ', texte)
+        texte = re.sub(r'\s+', ' ', texte).strip()
+        return texte.lower()
 
-    def extraire_tokens_lem(self, texte: str) -> List[str]:
-        """Tokenisation + Lemmatisation + Filtrage stop-words (spaCy)"""
-        doc = self.nlp(texte)
-        return [
-            token.lemma_.lower()
-            for token in doc
-            if token.is_alpha and not token.is_stop and len(token.lemma_) > 2
-        ]
+    def extraire_tokens_lem(self, texte: str) -> List[str]:
+        """Tokenisation + Lemmatisation + Filtrage stop-words (spaCy)"""
+        doc = self.nlp(texte)
+        return [
+            token.lemma_.lower()
+            for token in doc
+            if token.is_alpha and not token.is_stop and len(token.lemma_) > 2
+        ]
 
-    def extraire_entites(self, texte: str) -> set:
-        """NER français précis"""
-        doc = self.nlp(texte)
-        return {ent.text.lower() for ent in doc.ents}
+    def extraire_entites(self, texte: str) -> set:
+        """NER français précis"""
+        doc = self.nlp(texte)
+        return {ent.text.lower() for ent in doc.ents}
 
-    def cooccurrence(self, tokens: List[str], s1: str, window: int = 5) -> List[str]:
-        """Cooccurrences dans une fenêtre de ±5 mots"""
-        indices = [i for i, t in enumerate(tokens) if t == s1]
-        coocs = defaultdict(int)
-        for idx in indices:
-            start = max(0, idx - window)
-            end = min(len(tokens), idx + window + 1)
-            context = tokens[start:idx] + tokens[idx+1:end]
-            for word in context:
-                if word != s1 and word not in STOPWORDS:
-                    coocs[word] += 1
-        return [word for word, _ in sorted(coocs.items(), key=lambda x: x[1], reverse=True)[:2]]
+    def cooccurrence(self, tokens: List[str], s1: str, window: int = 5) -> List[str]:
+        """Cooccurrences dans une fenêtre de ±5 mots"""
+        indices = [i for i, t in enumerate(tokens) if t == s1]
+        coocs = defaultdict(int)
+        for idx in indices:
+            start = max(0, idx - window)
+            end = min(len(tokens), idx + window + 1)
+            context = tokens[start:idx] + tokens[idx+1:end]
+            for word in context:
+                if word != s1 and word not in STOPWORDS:
+                    coocs[word] += 1
+        return [word for word, _ in sorted(coocs.items(), key=lambda x: x[1], reverse=True)[:2]]
 
-    def polarite_s1(self, texte: str, s1: str) -> str:
-        """Analyse de sentiment lexicale légère (français)"""
-        POSITIFS = {'bon', 'bien', 'fort', 'grand', 'victoire', 'progrès', 'espoir', 'fierté', 'courage', 'unité', 'réussite', 'avenir', 'ensemble'}
-        NEGATIFS = {'mauvais', 'crise', 'échec', 'peur', 'danger', 'faible', 'division', 'refus', 'perte', 'problème', 'difficulté'}
+    def polarite_s1(self, texte: str, s1: str) -> str:
+        """Analyse de sentiment lexicale légère (français)"""
+        POSITIFS = {'bon', 'bien', 'fort', 'grand', 'victoire', 'progrès', 'espoir', 'fierté', 'courage', 'unité', 'réussite', 'avenir', 'ensemble'}
+        NEGATIFS = {'mauvais', 'crise', 'échec', 'peur', 'danger', 'faible', 'division', 'refus', 'perte', 'problème', 'difficulté'}
 
-        doc = self.nlp(texte)
-        score = 0
-        count = 0
+        doc = self.nlp(texte)
+        score = 0
+        count = 0
 
-        for sent in doc.sents:
-            if re.search(rf'\b{s1}\b', sent.text.lower()):
-                sent_text = sent.text.lower()
-                score += sum(1 for w in POSITIFS if w in sent_text)
-                score -= sum(1 for w in NEGATIFS if w in sent_text)
-                count += 1
+        for sent in doc.sents:
+            if re.search(rf'\b{s1}\b', sent.text.lower()):
+                sent_text = sent.text.lower()
+                score += sum(1 for w in POSITIFS if w in sent_text)
+                score -= sum(1 for w in NEGATIFS if w in sent_text)
+                count += 1
 
-        if count == 0:
-            return "neutre"
-        avg = score / count
-        return "positif" if avg > 0.3 else "négatif" if avg < -0.3 else "neutre"
+        if count == 0:
+            return "neutre"
+        avg = score / count
+        return "positif" if avg > 0.3 else "négatif" if avg < -0.3 else "neutre"
 
-    # === ÉTAPE 1 : Ψ-SCAN ===
-    def psi_scan(self, texte: str) -> dict:
-        texte_net = self.nettoyer_texte(texte)
-        tokens = self.extraire_tokens_lem(texte_net)
-        entities = self.extraire_entites(texte)
+    # === ÉTAPE 1 : Ψ-SCAN ===
+    def psi_scan(self, texte: str) -> dict:
+        texte_net = self.nettoyer_texte(texte)
+        tokens = self.extraire_tokens_lem(texte_net)
+        entities = self.extraire_entites(texte)
 
-        # Filtrer entités nommées
-        filtered = [t for t in tokens if t not in entities]
+        # Filtrer entités nommées
+        filtered = [t for t in tokens if t not in entities]
 
-        freq = Counter(filtered)
-        total = sum(freq.values())
-        if total == 0:
-            return {'error': 'Aucun mot significatif détecté'}
+        freq = Counter(filtered)
+        total = sum(freq.values())
+        if total == 0:
+            return {'error': 'Aucun mot significatif détecté'}
 
-        top = freq.most_common(5)
-        s1, count_s1 = top[0]
-        centralite = round((count_s1 / total) * 100, 1)
-        coocs = self.cooccurrence(filtered, s1)
-        je = len(re.findall(r'\bje\b', texte.lower()))
-        nous = len(re.findall(r'\bnous\b', texte.lower()))
-        ratio_nous_je = nous / max(je, 1)
-        res1 = min(80 + count_s1 * 3, 99)
-        res2 = min(75 + count_s1 * 2, 99)
-        indice_psi = round((centralite + res1 + res2) / 3, 1)
-        polarite = self.polarite_s1(texte, s1)
-        s1_raw_count = len(re.findall(rf'\b{s1}\b', texte.lower()))
+        top = freq.most_common(5)
+        s1, count_s1 = top[0]
+        centralite = round((count_s1 / total) * 100, 1)
+        coocs = self.cooccurrence(filtered, s1)
+        je = len(re.findall(r'\bje\b', texte.lower()))
+        nous = len(re.findall(r'\bnous\b', texte.lower()))
+        ratio_nous_je = nous / max(je, 1)
+        res1 = min(80 + count_s1 * 3, 99)
+        res2 = min(75 + count_s1 * 2, 99)
+        indice_psi = round((centralite + res1 + res2) / 3, 1)
+        polarite = self.polarite_s1(texte, s1)
+        s1_raw_count = len(re.findall(rf'\b{s1}\b', texte.lower()))
 
-        return {
-            's1': s1,
-            'centralite': centralite,
-            'top_mots': [w for w, _ in top[:3]],
-            'coocs': coocs,
-            'je': je,
-            'nous': nous,
-            'ratio_nous_je': round(ratio_nous_je, 1),
-            'resistance1': res1,
-            'resistance2': res2,
-            'indice_psi': indice_psi,
-            'polarite': polarite,
-            'total_mots': total,
-            's1_raw_count': s1_raw_count
-        }
+        return {
+            's1': s1,
+            'centralite': centralite,
+            'top_mots': [w for w, _ in top[:3]],
+            'coocs': coocs,
+            'je': je,
+            'nous': nous,
+            'ratio_nous_je': round(ratio_nous_je, 1),
+            'resistance1': res1,
+            'resistance2': res2,
+            'indice_psi': indice_psi,
+            'polarite': polarite,
+            'total_mots': total,
+            's1_raw_count': s1_raw_count
+        }
 
-    # === ÉTAPE 2 : Ψ-LOGUE ===
-    def psi_logue(self, scan: dict) -> dict:
-        s1 = scan['s1']
-        coocs = scan['coocs']
-        top_mots = scan['top_mots']
+    # === ÉTAPE 2 : Ψ-LOGUE ===
+    def psi_logue(self, scan: dict) -> dict:
+        s1 = scan['s1']
+        coocs = scan['coocs']
+        top_mots = scan['top_mots']
 
-        if coocs:
-            boucle = ' → '.join(coocs)
-        elif len(top_mots) > 1:
-            boucle = ' → '.join(top_mots[1:3])
-        else:
-            boucle = "(aucune boucle détectée)"
+        if coocs:
+            boucle = ' → '.join(coocs)
+        elif len(top_mots) > 1:
+            boucle = ' → '.join(top_mots[1:3])
+        else:
+            boucle = "(aucune boucle détectée)"
 
-        axiome = f"Le {s1.upper()} ({scan['polarite']}) suture la faille via la boucle {boucle}."
-        return {'axiome': axiome, 'boucle': boucle}
+        axiome = f"Le {s1.upper()} ({scan['polarite']}) suture la faille via la boucle {boucle}."
+        return {'axiome': axiome, 'boucle': boucle}
 
-    # === ÉTAPE 3 : Ψ-VULGUS ===
-    def psi_vulgus(self, scan: dict, logue: dict, titre: str = "") -> str:
-        C = VULGUS_CORPUS
-        s1 = scan['s1']
-        indice = scan['indice_psi']
-        polarite = scan['polarite']
-        ratio = scan['ratio_nous_je']
+    # === ÉTAPE 3 : Ψ-VULGUS ===
+    def psi_vulgus(self, scan: dict, logue: dict, titre: str = "") -> str:
+        C = VULGUS_CORPUS
+        s1 = scan['s1']
+        indice = scan['indice_psi']
+        polarite = scan['polarite']
+        ratio = scan['ratio_nous_je']
 
-        # Icône d’état
-        if indice > 90:
-            icone = "FORCLUSION"
-        elif indice > 80:
-            icone = "SURRÉGIME"
-        elif indice > 65:
-            icone = "ATTENTION"
-        elif indice < 50:
-            icone = "CONFIANCE"
-        else:
-            icone = "STABLE"
+        # Icône d'état
+        if indice > 90:
+            icone = "FORCLUSION"
+        elif indice > 80:
+            icone = "SURRÉGIME"
+        elif indice > 65:
+            icone = "ATTENTION"
+        elif indice < 50:
+            icone = "CONFIANCE"
+        else:
+            icone = "STABLE"
 
-        # Ancrage
-        ancrage = C["ancrage"].get(s1, f"L’obsession de « {s1} » comme acte de pouvoir")
+        # Ancrage
+        ancrage = C["ancrage"].get(s1, f"L'obsession de « {s1} » comme acte de pouvoir")
 
-        # Fissure
-        if ratio > 3:
-            fissure = C["fissure"]["nous_dominant"]
-        elif scan['je'] == 0:
-            fissure = C["fissure"]["je_absent"]
-        elif 0.7 <= ratio <= 1.3 and indice < 60:
-            fissure = C["fissure"]["maturite"]
-        else:
-            fissure = C["fissure"]["je_isolé"]
+        # Fissure
+        if ratio > 3:
+            fissure = C["fissure"]["nous_dominant"]
+        elif scan['je'] == 0:
+            fissure = C["fissure"]["je_absent"]
+        elif 0.7 <= ratio <= 1.3 and indice < 60:
+            fissure = C["fissure"]["maturite"]
+        else:
+            fissure = C["fissure"]["je_isolé"]
 
-        # Projet
-        projet = C["projet"]["suture_sociale"] if scan['nous'] > 10 else C["projet"]["maitrise_directe"]
+        # Projet
+        projet = C["projet"]["suture_sociale"] if scan['nous'] > 10 else C["projet"]["maitrise_directe"]
 
-        # Rituel
-        count_s1 = scan.get('s1_raw_count', 0)
-        rituel = f"Répéter « {s1} » {count_s1} fois pour faire taire le doute."
+        # Rituel
+        count_s1 = scan.get('s1_raw_count', 0)
+        rituel = f"Répéter « {s1} » {count_s1} fois pour faire taire le doute."
 
-        # Contrat
-        contrat = f"Vous devez {s1} — sinon tout s’effondre."
+        # Contrat
+        contrat = f"Vous devez {s1} — sinon tout s'effondre."
 
-        # Dépendance
-        if indice < 50:
-            dependance = C["dependance"]["equilibre"]
-        elif s1 == "refuser":
-            dependance = C["dependance"]["refus_actif"]
-        elif polarite == "positif":
-            dependance = C["dependance"]["positif"].format(s1=s1)
-        elif polarite == "négatif":
-            dependance = C["dependance"]["négatif"].format(s1=s1)
-        else:
-            dependance = C["dependance"]["action"]
+        # Dépendance
+        if indice < 50:
+            dependance = C["dependance"]["equilibre"]
+        elif s1 == "refuser":
+            dependance = C["dependance"]["refus_actif"]
+        elif polarite == "positif":
+            dependance = C["dependance"]["positif"].format(s1=s1)
+        elif polarite == "négatif":
+            dependance = C["dependance"]["négatif"].format(s1=s1)
+        else:
+            dependance = C["dependance"]["action"]
 
-        # Risque
-        risque = C["risque"]["institution"] if scan['nous'] > scan['je'] * 2 else C["risque"]["personne"]
+        # Risque
+        risque = C["risque"]["institution"] if scan['nous'] > scan['je'] * 2 else C["risque"]["personne"]
 
-        # Conclusion
-        conclusion = C["conclusion"][icone]
+        # Conclusion
+        conclusion = C["conclusion"][icone]
 
-        # Rapport final
-        rapport = f"""[Rapport PSYSCAN v1.0]{titre}
+        # Rapport final
+        rapport = f"""[Rapport PSYSCAN v1.0]{titre}
 
 #### ANALYSE DE LA NARRATIVE INCONSCIENTE DU DISCOURS
 * **Mot-Clé Central (L'Ancrage) :** {ancrage} ({int(scan['centralite'])} %)
@@ -303,15 +304,15 @@ class PSYSCAN:
 * {icone} {conclusion}
 """
 
-        return textwrap.dedent(rapport).strip()
+        return textwrap.dedent(rapport).strip()
 
-    # === FONCTION PRINCIPALE ===
-    def analyser(self, texte: str, titre: str = "") -> str:
-        scan = self.psi_scan(texte)
-        if 'error' in scan:
-            return f"Erreur : {scan['error']}"
-        logue = self.psi_logue(scan)
-        return self.psi_vulgus(scan, logue, titre)
+    # === FONCTION PRINCIPALE ===
+    def analyser(self, texte: str, titre: str = "") -> str:
+        scan = self.psi_scan(texte)
+        if 'error' in scan:
+            return f"Erreur : {scan['error']}"
+        logue = self.psi_logue(scan)
+        return self.psi_vulgus(scan, logue, titre)
 
 
 # ========================
