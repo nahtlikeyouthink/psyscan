@@ -132,59 +132,56 @@ class PSYSCAN:
   def __init__(self):
     pass
 
-def nettoyer_texte(self, texte: str) -> str:
-
-  for artifact in ORAL_ARTIFACTS:
-    texte = re.sub(rf'\b{artifact}\b', '', texte, flags=re.IGNORECASE)
+  def nettoyer_texte(self, texte: str) -> str:
+    for artifact in ORAL_ARTIFACTS:
+      texte = re.sub(rf'\b{artifact}\b', '', texte, flags=re.IGNORECASE)
     texte = re.sub(r'[^\w\s\.\?\!]', ' ', texte)
     texte = re.sub(r'\s+', ' ', texte).strip()
     return texte.lower()
 
-def lemmatiser(self, tokens: List[str]) -> List[str]:
+  def lemmatiser(self, tokens: List[str]) -> List[str]:
   tagged = pos_tag(tokens)
-  return [
-    lemmatizer.lemmatize(word, get_wordnet_pos(tag))
-    for word, tag in tagged
-  ]
+    return [
+      lemmatizer.lemmatize(word, get_wordnet_pos(tag))
+      for word, tag in tagged
+    ]
 
-def filtrer_ner(self, tokens: List[str], entities: set) -> List[str]:
-  return [t for t in tokens if t not in entities and len(t) > 2 and t not in STOPWORDS]
+  def filtrer_ner(self, tokens: List[str], entities: set) -> List[str]:
+    return [t for t in tokens if t not in entities and len(t) > 2 and t not in STOPWORDS]
 
-def cooccurrence(self, tokens: List[str], s1: str, window: int = 5) -> List[str]:
-  indices = [i for i, t in enumerate(tokens) if t == s1]
-  coocs = defaultdict(int)
-  for idx in indices:
-    start = max(0, idx - window)
-    end = min(len(tokens), idx + window + 1)
-    context = tokens[start:idx] + tokens[idx+1:end]
-    
-    for word in context:
-      if word != s1 and word not in STOPWORDS:
-        coocs[word] += 1
-        return [word for word, _ in sorted(coocs.items(), key=lambda x: x[1], reverse=True)[:2]]
+  def cooccurrence(self, tokens: List[str], s1: str, window: int = 5) -> List[str]:
+    indices = [i for i, t in enumerate(tokens) if t == s1]
+    coocs = defaultdict(int)
+    for idx in indices:
+      start = max(0, idx - window)
+      end = min(len(tokens), idx + window + 1)
+      context = tokens[start:idx] + tokens[idx+1:end]
+      for word in context:
+        if word != s1 and word not in STOPWORDS:
+          coocs[word] += 1
+    return [word for word, _ in sorted(coocs.items(), key=lambda x: x[1], reverse=True)[:2]]
         
   def polarite_s1(self, texte: str, s1: str) -> str:
     blob = TextBlob(texte)
     sentences_with_s1 = [s for s in blob.sentences if s1 in s.lower()]
-    
-  if not sentences_with_s1:
-    return "neutre"
+    if not sentences_with_s1:
+      return "neutre"
     polarity = sum(s.sentiment.polarity for s in sentences_with_s1) / len(sentences_with_s1)
     return "positif" if polarity > 0.1 else "négatif" if polarity < -0.1 else "neutre"
 
-# === ÉTAPE 1 : Ψ-SCAN ===
-def psi_scan(self, texte: str) -> dict:
-  global texte_global
-  texte_global = texte
-  texte_net = self.nettoyer_texte(texte)
-  tokens = nltk.word_tokenize(texte_net, language='french')
-  entities = extract_entities(texte)
-  lemmas = self.lemmatiser(tokens)
-  filtered = self.filtrer_ner(lemmas, entities)
-  freq = Counter(filtered)
-  total = sum(freq.values())
-  if total == 0:
-    return {'error': 'Aucun mot significatif détecté'}
+  # === ÉTAPE 1 : Ψ-SCAN ===
+  def psi_scan(self, texte: str) -> dict:
+    global texte_global
+    texte_global = texte
+    texte_net = self.nettoyer_texte(texte)
+    tokens = nltk.word_tokenize(texte_net, language='french')
+    entities = extract_entities(texte)
+    lemmas = self.lemmatiser(tokens)
+    filtered = self.filtrer_ner(lemmas, entities)
+    freq = Counter(filtered)
+    total = sum(freq.values())
+    if total == 0:
+      return {'error': 'Aucun mot significatif détecté'}
     top = freq.most_common(5)
     s1, count_s1 = top[0]
     centralite = round((count_s1 / total) * 100, 1)
@@ -211,79 +208,79 @@ def psi_scan(self, texte: str) -> dict:
       'total_mots': total
     }
 
-# === ÉTAPE 2 : Ψ-LOGUE ===
-def psi_logue(self, scan: dict) -> dict:
-  s1 = scan['s1']
-  boucle = ' → '.join(scan['coocs']) if scan['coocs'] else ' → '.join(scan['top_mots'][1:3])
-  faille = f"glissement je→nous ({scan['je']}→{scan['nous']})"
-  polarite = scan['polarite']
-  axiome = f"Le {s1.upper()} ({polarite}) suture la faille via la boucle {boucle}."
-  return {'axiome': axiome, 'boucle': boucle}
+  # === ÉTAPE 2 : Ψ-LOGUE ===
+  def psi_logue(self, scan: dict) -> dict:
+    s1 = scan['s1']
+    boucle = ' → '.join(scan['coocs']) if scan['coocs'] else ' → '.join(scan['top_mots'][1:3])
+    faille = f"glissement je→nous ({scan['je']}→{scan['nous']})"
+    polarite = scan['polarite']
+    axiome = f"Le {s1.upper()} ({polarite}) suture la faille via la boucle {boucle}."
+    return {'axiome': axiome, 'boucle': boucle}
 
-# === ÉTAPE 3 : Ψ-VULGUS v1.0 ===
-def psi_vulgus(self, scan: dict, logue: dict, titre: str = "") -> str:
-  C = VULGUS_CORPUS
-  s1 = scan['s1']
-  indice = scan['indice_psi']
-  polarite = scan['polarite']
-  ratio = scan['ratio_nous_je']
+  # === ÉTAPE 3 : Ψ-VULGUS v1.0 ===
+  def psi_vulgus(self, scan: dict, logue: dict, titre: str = "") -> str:
+    C = VULGUS_CORPUS
+    s1 = scan['s1']
+    indice = scan['indice_psi']
+    polarite = scan['polarite']
+    ratio = scan['ratio_nous_je']
 
-# === ICÔNE NUANCÉE ===
-if indice > 90:
-  icone = "FORCLUSION"
-elif indice > 80:
-  icone = "SURRÉGIME"
-elif indice > 65:
-  icone = "ATTENTION"
-elif indice < 50:
-  icone = "CONFIANCE"
-else:
-  icone = "STABLE"
+    # === ICÔNE NUANCÉE ===
+    if indice > 90:
+      icone = "FORCLUSION"
+    elif indice > 80:
+      icone = "SURRÉGIME"
+    elif indice > 65:
+      icone = "ATTENTION"
+    elif indice < 50:
+      icone = "CONFIANCE"
+    else:
+      icone = "STABLE"
 
-# === ANCRAGE ===
-ancrage = C["ancrage"].get(s1, f"L’obsession de « {s1} » comme acte de pouvoir")
+    # === ANCRAGE ===
+    ancrage = C["ancrage"].get(s1, f"L’obsession de « {s1} » comme acte de pouvoir")
 
-# === FISSURE (avec maturité) ===
-if ratio > 3:
-  fissure = C["fissure"]["nous_dominant"]
-elif scan['je'] == 0:
-  fissure = C["fissure"]["je_absent"]
-elif 0.7 <= ratio <= 1.3 and indice < 60:
-  fissure = C["fissure"]["maturite"]
-else:
-  fissure = C["fissure"]["je_isolé"]
+    # === FISSURE (avec maturité) ===
+    if ratio > 3:
+      fissure = C["fissure"]["nous_dominant"]
+    elif scan['je'] == 0:
+      fissure = C["fissure"]["je_absent"]
+    elif 0.7 <= ratio <= 1.3 and indice < 60:
+      fissure = C["fissure"]["maturite"]
+    else:
+      fissure = C["fissure"]["je_isolé"]
 
-# === PROJET ===
-if scan['nous'] > 10:
-  projet = C["projet"]["suture_sociale"]
-else:
-  projet = C["projet"]["maitrise_directe"]
+    # === PROJET ===
+    if scan['nous'] > 10:
+      projet = C["projet"]["suture_sociale"]
+    else:
+      projet = C["projet"]["maitrise_directe"]
 
-# === RITUEL ===
-count_s1 = len(re.findall(rf'\b{s1}\b', texte_global.lower()))
-rituel = f"Répéter « {s1} » {count_s1} fois pour faire taire le doute."
+    # === RITUEL ===
+    count_s1 = len(re.findall(rf'\b{s1}\b', texte_global.lower()))
+    rituel = f"Répéter « {s1} » {count_s1} fois pour faire taire le doute."
 
-# === CONTRAT ===
-contrat = f"Vous devez {s1} — sinon tout s’effondre."
+    # === CONTRAT ===
+    contrat = f"Vous devez {s1} — sinon tout s’effondre."
 
-# === DÉPENDANCE (équilibre si stable) ===
-if indice < 50:
-  dependance = C["dependance"]["equilibre"]
-elif s1 == "refuser":
-  dependance = C["dependance"]["refus_actif"]
-elif polarite == "positif":
-  dependance = C["dependance"]["positif"].format(s1=s1)
-elif polarite == "négatif":
-  dependance = C["dependance"]["négatif"].format(s1=s1)
-else:
-  dependance = C["dependance"]["action"]
+    # === DÉPENDANCE (équilibre si stable) ===
+    if indice < 50:
+      dependance = C["dependance"]["equilibre"]
+    elif s1 == "refuser":
+      dependance = C["dependance"]["refus_actif"]
+    elif polarite == "positif":
+      dependance = C["dependance"]["positif"].format(s1=s1)
+    elif polarite == "négatif":
+      dependance = C["dependance"]["négatif"].format(s1=s1)
+    else:
+      dependance = C["dependance"]["action"]
 
-# === RISQUE ===
-risque = C["risque"]["institution"] if scan['nous'] > scan['je'] * 2 else C["risque"]["personne"]
+    # === RISQUE ===
+    risque = C["risque"]["institution"] if scan['nous'] > scan['je'] * 2 else C["risque"]["personne"]
 
-# === CONCLUSION ===
-conclusion = C["conclusion"][icone]
-rapport = f"""[Rapport PSYSCAN v1.0]{titre}
+    # === CONCLUSION ===
+    conclusion = C["conclusion"][icone]
+    rapport = f"""[Rapport PSYSCAN v1.0]{titre}
 
 #### ANALYSE DE LA NARRATIVE INCONSCIENTE DU DISCOURS
 * **Mot-Clé Central (L'Ancrage) :** {ancrage} ({int(scan['centralite'])} %)
@@ -302,17 +299,17 @@ rapport = f"""[Rapport PSYSCAN v1.0]{titre}
 * {icone} {conclusion}
 """
 
-return textwrap.dedent(rapport).strip()
+    return textwrap.dedent(rapport).strip()
 
-# === FONCTION PRINCIPALE ===
-def analyser(self, texte: str, titre: str = "") -> str:
-  global texte_global
-  texte_global = texte
-  scan = self.psi_scan(texte)
-if 'error' in scan:
-  return f"Erreur : {scan['error']}"
-  logue = self.psi_logue(scan)
-  return self.psi_vulgus(scan, logue, titre)
+  # === FONCTION PRINCIPALE ===
+  def analyser(self, texte: str, titre: str = "") -> str:
+    global texte_global
+    texte_global = texte
+    scan = self.psi_scan(texte)
+    if 'error' in scan:
+      return f"Erreur : {scan['error']}"
+    logue = self.psi_logue(scan)
+    return self.psi_vulgus(scan, logue, titre)
 
 # ========================
 # EXÉCUTION
