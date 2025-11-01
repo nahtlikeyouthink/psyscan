@@ -140,7 +140,7 @@ class PSYSCAN:
     return texte.lower()
 
   def lemmatiser(self, tokens: List[str]) -> List[str]:
-  tagged = pos_tag(tokens)
+    tagged = pos_tag(tokens)
     return [
       lemmatizer.lemmatize(word, get_wordnet_pos(tag))
       for word, tag in tagged
