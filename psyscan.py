@@ -176,43 +176,40 @@ def cooccurrence(self, tokens: List[str], s1: str, window: int = 5) -> List[str]
 def psi_scan(self, texte: str) -> dict:
   global texte_global
   texte_global = texte
-
-texte_net = self.nettoyer_texte(texte)
-tokens = nltk.word_tokenize(texte_net, language='french')
-entities = extract_entities(texte)
-lemmas = self.lemmatiser(tokens)
-filtered = self.filtrer_ner(lemmas, entities)
-freq = Counter(filtered)
-total = sum(freq.values())
+  texte_net = self.nettoyer_texte(texte)
+  tokens = nltk.word_tokenize(texte_net, language='french')
+  entities = extract_entities(texte)
+  lemmas = self.lemmatiser(tokens)
+  filtered = self.filtrer_ner(lemmas, entities)
+  freq = Counter(filtered)
+  total = sum(freq.values())
 if total == 0:
   return {'error': 'Aucun mot significatif détecté'}
-top = freq.most_common(5)
-s1, count_s1 = top[0]
-centralite = round((count_s1 / total) * 100, 1)
-coocs = self.cooccurrence(filtered, s1)
-
-je = len(re.findall(r'\bje\b', texte.lower()))
-nous = len(re.findall(r'\bnous\b', texte.lower()))
-ratio_nous_je = nous / max(je, 1)
-
-res1 = min(80 + count_s1 * 3, 99)
-res2 = min(75 + count_s1 * 2, 99)
-indice_psi = round((centralite + res1 + res2) / 3, 1)
-polarite = self.polarite_s1(texte, s1)
+  top = freq.most_common(5)
+  s1, count_s1 = top[0]
+  centralite = round((count_s1 / total) * 100, 1)
+  coocs = self.cooccurrence(filtered, s1)
+  je = len(re.findall(r'\bje\b', texte.lower()))
+  nous = len(re.findall(r'\bnous\b', texte.lower()))
+  ratio_nous_je = nous / max(je, 1)
+  res1 = min(80 + count_s1 * 3, 99)
+  res2 = min(75 + count_s1 * 2, 99)
+  indice_psi = round((centralite + res1 + res2) / 3, 1)
+  polarite = self.polarite_s1(texte, s1)
 
 return {
-'s1': s1,
-'centralite': centralite,
-'top_mots': [w for w, _ in top[:3]],
-'coocs': coocs,
-'je': je,
-'nous': nous,
-'ratio_nous_je': round(ratio_nous_je, 1),
-'resistance1': res1,
-'resistance2': res2,
-'indice_psi': indice_psi,
-'polarite': polarite,
-'total_mots': total
+  's1': s1,
+  'centralite': centralite,
+  'top_mots': [w for w, _ in top[:3]],
+  'coocs': coocs,
+  'je': je,
+  'nous': nous,
+  'ratio_nous_je': round(ratio_nous_je, 1),
+  'resistance1': res1,
+  'resistance2': res2,
+  'indice_psi': indice_psi,
+  'polarite': polarite,
+  'total_mots': total
 }
 
 # === ÉTAPE 2 : Ψ-LOGUE ===
