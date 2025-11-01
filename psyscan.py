@@ -184,18 +184,18 @@ def psi_scan(self, texte: str) -> dict:
   freq = Counter(filtered)
   total = sum(freq.values())
   if total == 0:
-return {'error': 'Aucun mot significatif détecté'}
-  top = freq.most_common(5)
-  s1, count_s1 = top[0]
-  centralite = round((count_s1 / total) * 100, 1)
-  coocs = self.cooccurrence(filtered, s1)
-  je = len(re.findall(r'\bje\b', texte.lower()))
-  nous = len(re.findall(r'\bnous\b', texte.lower()))
-  ratio_nous_je = nous / max(je, 1)
-  res1 = min(80 + count_s1 * 3, 99)
-  res2 = min(75 + count_s1 * 2, 99)
-  indice_psi = round((centralite + res1 + res2) / 3, 1)
-  polarite = self.polarite_s1(texte, s1)
+    return {'error': 'Aucun mot significatif détecté'}
+    top = freq.most_common(5)
+    s1, count_s1 = top[0]
+    centralite = round((count_s1 / total) * 100, 1)
+    coocs = self.cooccurrence(filtered, s1)
+    je = len(re.findall(r'\bje\b', texte.lower()))
+    nous = len(re.findall(r'\bnous\b', texte.lower()))
+    ratio_nous_je = nous / max(je, 1)
+    res1 = min(80 + count_s1 * 3, 99)
+    res2 = min(75 + count_s1 * 2, 99)
+    indice_psi = round((centralite + res1 + res2) / 3, 1)
+    polarite = self.polarite_s1(texte, s1)
 
 return {
   's1': s1,
