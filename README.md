@@ -1,7 +1,7 @@
 # PSYSCAN v1.0
-Scanner méta-psychique du discours public
+PSYSCAN révèle la structure du pouvoir — pas les individus.
 
-**Author** / Auteur : NAHT LIKE YOU THINK
+**Author** / Auteur : Naht Like You Think
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.xxxxxxx.svg)](https://doi.org/10.5281/zenodo.xxxxxxx)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
@@ -18,9 +18,17 @@ This software is distributed under the **GNU Affero General Public License v3.0 
 
 > **En bref :** Libre pour la recherche et l'analyse de discours **publics** — **Strictement interdit** pour le profilage, la surveillance individuelle ou l'usage en Ressources Humaines (RH).
 
-### Installation & Usage / Installation & Utilisation
+---
 
-*(Add your technical instructions here / Ajoutez ici vos instructions techniques.)*
+### Installation (Local)
+
+```bash
+git clone https://github.com/nahtlikeyouthink/psyscan.py
+cd psyscan
+pip install -r requirements.txt
+python -c "import nltk; nltk.download('punkt', 'stopwords', 'wordnet', 'omw-1.4', 'averaged_perceptron_tagger', 'maxent_ne_chunker', 'words', 'vader_lexicon')"
+```
+---
 
 ### Citation
 
@@ -34,3 +42,5 @@ If you use this work in a publication, please cite the Zenodo archive via its DO
 
 * [Full License (AGPL-3.0)](https://www.gnu.org/licenses/agpl-3.0.txt)
 * [Detailed Ethical Guidelines](ETHICAL_GUIDELINES.md)
+
+  
