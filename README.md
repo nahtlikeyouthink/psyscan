@@ -1,4 +1,4 @@
-# PSYSCAN - Readme (v1.0)
+# PSYSCAN (v1.0) - README 
 PSYSCAN révèle la structure du pouvoir — pas les individus.
 
 **Author** / Auteur : Naht Like You Think
