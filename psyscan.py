@@ -182,13 +182,10 @@ tokens = nltk.word_tokenize(texte_net, language='french')
 entities = extract_entities(texte)
 lemmas = self.lemmatiser(tokens)
 filtered = self.filtrer_ner(lemmas, entities)
-
 freq = Counter(filtered)
 total = sum(freq.values())
-
 if total == 0:
   return {'error': 'Aucun mot significatif détecté'}
-
 top = freq.most_common(5)
 s1, count_s1 = top[0]
 centralite = round((count_s1 / total) * 100, 1)
