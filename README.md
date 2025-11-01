@@ -23,10 +23,20 @@ This software is distributed under the **GNU Affero General Public License v3.0 
 ### Installation (Local)
 
 ```bash
-git clone https://github.com/nahtlikeyouthink/psyscan.py
+git clone [https://github.com/nahtlikeyouthink/psyscan.py](https://github.com/nahtlikeyouthink/psyscan.py)
 cd psyscan
+
+# Création de l'environnement
+python3 -m venv venv
+
+# Activation de l'environnement (Linux/macOS) :
+source venv/bin/activate
+# Activation de l'environnement (Windows PowerShell) :
+.\venv\Scripts\Activate
+
 pip install -r requirements.txt
-python -c "import nltk; nltk.download('punkt', 'stopwords', 'wordnet', 'omw-1.4', 'averaged_perceptron_tagger', 'maxent_ne_chunker', 'words', 'vader_lexicon')"
+python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords'); nltk.download('averaged_perceptron_tagger'); nltk.download('maxent_ne_chunker'); nltk.download('words'); nltk.download('wordnet'); nltk.download('omw-1.4'); nltk.download('vader_lexicon')"
+
 ```
 ---
 
