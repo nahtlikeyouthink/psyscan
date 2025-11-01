@@ -31,17 +31,17 @@ from textblob import TextBlob
 # ========================
 STOPWORDS = set(stopwords.words('french'))
 STOPWORDS.update({
-    'les', 'des', 'du', 'au', 'aux', 'et', 'ou', 'par', 'pour', 'dans', 'sur', 'avec', 'sans',
-    'sous', 'vers', 'depuis', 'jusqu', 'après', 'avant', 'pendant', 'entre', 'contre', 'malgré',
-    'grâce', 'chez', 'près', 'loin', 'ici', 'là', 'où', 'quand', 'comment', 'pourquoi', 'qui',
-    'que', 'quoi', 'dont', 'lequel', 'laquelle', 'lesquels', 'lesquelles', 'celui', 'celle',
-    'ceux', 'celles', 'tout', 'tous', 'toute', 'toutes', 'plus', 'moins', 'très', 'trop',
-    'peu', 'assez', 'autant', 'aussi', 'encore', 'déjà', 'toujours', 'jamais', 'souvent',
-    'rarement', 'parfois', 'quelquefois', 'bientôt', 'tard', 'hier', 'aujourd’hui', 'demain',
-    'maintenant', 'alors', 'donc', 'car', 'mais', 'ni', 'si', 'comme', 'lorsque', 'puisque',
-    'quoique', 'afin', 'parce', 'même', 'seulement', 'surtout', 'notamment', 'ainsi', 'enfin',
-    'finalement', 'bref', 'voici', 'voilà', 'cependant', 'néanmoins', 'pourtant', 'toutefois',
-    'd’ailleurs', 'en effet', 'en réalité', 'en fait', 'autrement dit', 'c’est-à-dire'
+  'les', 'des', 'du', 'au', 'aux', 'et', 'ou', 'par', 'pour', 'dans', 'sur', 'avec', 'sans',
+  'sous', 'vers', 'depuis', 'jusqu', 'après', 'avant', 'pendant', 'entre', 'contre', 'malgré',
+  'grâce', 'chez', 'près', 'loin', 'ici', 'là', 'où', 'quand', 'comment', 'pourquoi', 'qui',
+  'que', 'quoi', 'dont', 'lequel', 'laquelle', 'lesquels', 'lesquelles', 'celui', 'celle',
+  'ceux', 'celles', 'tout', 'tous', 'toute', 'toutes', 'plus', 'moins', 'très', 'trop',
+  'peu', 'assez', 'autant', 'aussi', 'encore', 'déjà', 'toujours', 'jamais', 'souvent',
+  'rarement', 'parfois', 'quelquefois', 'bientôt', 'tard', 'hier', 'aujourd’hui', 'demain',
+  'maintenant', 'alors', 'donc', 'car', 'mais', 'ni', 'si', 'comme', 'lorsque', 'puisque',
+  'quoique', 'afin', 'parce', 'même', 'seulement', 'surtout', 'notamment', 'ainsi', 'enfin',
+  'finalement', 'bref', 'voici', 'voilà', 'cependant', 'néanmoins', 'pourtant', 'toutefois',
+  'd’ailleurs', 'en effet', 'en réalité', 'en fait', 'autrement dit', 'c’est-à-dire'
 })
 
 ORAL_ARTIFACTS = {'euh', 'heu', 'hum', 'ah', 'bon', 'voilà', 'donc', 'alors', 'hein', 'ben', 'bah'}
@@ -77,36 +77,36 @@ def extract_entities(text: str) -> set:
 # CORPUS VULGUS v1.0
 # ========================
 VULGUS_CORPUS = {
-    "ancrage": {
-        "agir": "L’ordre d’agir comme un général",
-        "travail": "L’obsession du travail comme devoir sacré",
-        "refuser": "Le refus comme acte de survie",
-        "puissance": "La puissance comme prothèse verbale",
-        "peuple": "Le peuple comme bouclier collectif",
-        "révolution": "La révolution comme fantasme répétitif",
-        "écologie": "L’écologie comme mantra de survie",
-        "sécurité": "La sécurité comme armure du pouvoir",
-        "france": "La France comme totem national",
-        "liberté": "La liberté comme mot-piège",
-        "égalité": "L’égalité comme promesse répétée",
-        "réforme": "La réforme comme fuite en avant",
-        "crise": "La crise comme justification permanente",
-        "avenir": "L’avenir comme horizon vide"
+  "ancrage": {
+    "agir": "L’ordre d’agir comme un général",
+    "travail": "L’obsession du travail comme devoir sacré",
+    "refuser": "Le refus comme acte de survie",
+    "puissance": "La puissance comme prothèse verbale",
+    "peuple": "Le peuple comme bouclier collectif",
+    "révolution": "La révolution comme fantasme répétitif",
+    "écologie": "L’écologie comme mantra de survie",
+    "sécurité": "La sécurité comme armure du pouvoir",
+    "france": "La France comme totem national",
+    "liberté": "La liberté comme mot-piège",
+    "égalité": "L’égalité comme promesse répétée",
+    "réforme": "La réforme comme fuite en avant",
+    "crise": "La crise comme justification permanente",
+    "avenir": "L’avenir comme horizon vide"
     },
-    "fissure": {
-        "nous_dominant": "Un sujet dissous dans le corps social pour éviter la singularité.",
-        "je_isolé": "Un leader qui se cache derrière son mot fétiche.",
-        "je_absent": "Un sujet effacé, remplacé par un 'nous' totalitaire.",
-        "maturite": "Un leader qui endosse le 'Je' pour mieux engager le 'Nous'."
+    "fissure": {
+    "nous_dominant": "Un sujet dissous dans le corps social pour éviter la singularité.",
+    "je_isolé": "Un leader qui se cache derrière son mot fétiche.",
+    "je_absent": "Un sujet effacé, remplacé par un 'nous' totalitaire.",
+    "maturite": "Un leader qui endosse le 'Je' pour mieux engager le 'Nous'."
     },
     "projet": {
-        "maitrise_directe": "Affirmer une direction sans le besoin de l'adhésion fusionnelle.",
-        "suture_sociale": "Tenter de masquer la fragilité individuelle par la force du nombre."
+    "maitrise_directe": "Affirmer une direction sans le besoin de l'adhésion fusionnelle.",
+    "suture_sociale": "Tenter de masquer la fragilité individuelle par la force du nombre."
     },
     "dependance": {
-        "positif": "Si {s1} est détourné·e, le mythe vacille.",
-        "négatif": "Si {s1} n’est pas surmonté·e, tout s’effondre.",
-        "action": "Si l’action échoue, le discours devient ridicule.",
+    "positif": "Si {s1} est détourné·e, le mythe vacille.",
+    "négatif": "Si {s1} n’est pas surmonté·e, tout s’effondre.",
+    "action": "Si l’action échoue, le discours devient ridicule.",
         "equilibre": "Le mot-clé est intégré et son échec est géré par la structure.",
         "refus_actif": "Si la contestation s’organise, l’identité discursive s’effondre.",
         "default": "Si {s1} perd son sens, le vide apparaît."
