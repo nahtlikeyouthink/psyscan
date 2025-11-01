@@ -158,13 +158,12 @@ for idx in indices:
   end = min(len(tokens), idx + window + 1)
   context = tokens[start:idx] + tokens[idx+1:end]
 for word in context:
-  if word != s1 and word not in STOPWORDS:
-    coocs[word] += 1
-    return [word for word, _ in sorted(coocs.items(), key=lambda x: x[1], reverse=True)[:2]]
+if word != s1 and word not in STOPWORDS:
+  coocs[word] += 1
+  return [word for word, _ in sorted(coocs.items(), key=lambda x: x[1], reverse=True)[:2]]
 def polarite_s1(self, texte: str, s1: str) -> str:
   blob = TextBlob(texte)
-  sentences_with_s1 = [s for s in blob.sentences if s1 in s.lower()]
-  
+  sentences_with_s1 = [s for s in blob.sentences if s1 in s.lower()]  
 if not sentences_with_s1:
   return "neutre"
   polarity = sum(s.sentiment.polarity for s in sentences_with_s1) / len(sentences_with_s1)
