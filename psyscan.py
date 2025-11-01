@@ -29,6 +29,42 @@ from textblob import TextBlob
 # ========================
 # CONFIG & STOPWORDS
 # ========================
+
+import nltk
+import os
+import sys
+
+# Définir le répertoire de données de NLTK pour l'environnement Streamlit
+# Cela garantit que les données sont téléchargées au bon endroit.
+# L'environnement virtuel de Streamlit est /home/adminuser/venv
+nltk_data_dir = os.path.join(sys.prefix, 'nltk_data')
+if not os.path.exists(nltk_data_dir):
+    os.makedirs(nltk_data_dir)
+nltk.data.path.append(nltk_data_dir)
+
+# Téléchargement des données nécessaires, y compris les stopwords
+try:
+    nltk.download('stopwords', download_dir=nltk_data_dir, quiet=True)
+    # Assurez-vous que toutes les autres dépendances NLTK sont là aussi :
+    nltk.download('punkt', download_dir=nltk_data_dir, quiet=True)
+    nltk.download('wordnet', download_dir=nltk_data_dir, quiet=True)
+    nltk.download('omw-1.4', download_dir=nltk_data_dir, quiet=True)
+    nltk.download('averaged_perceptron_tagger', download_dir=nltk_data_dir, quiet=True)
+    nltk.download('maxent_ne_chunker', download_dir=nltk_data_dir, quiet=True)
+    nltk.download('words', download_dir=nltk_data_dir, quiet=True)
+    nltk.download('vader_lexicon', download_dir=nltk_data_dir, quiet=True)
+
+except Exception as e:
+    print(f"Erreur lors du téléchargement des données NLTK : {e}")
+
+# Assurez-vous que l'installation des données TextBlob est aussi effectuée :
+try:
+    import textblob
+    from textblob.download_corpora import download_lite
+    download_lite()
+except ImportError:
+    pass # TextBlob n'est pas utilisé ou est déjà installé.
+
 STOPWORDS = set(stopwords.words('french'))
 STOPWORDS.update({
   'les', 'des', 'du', 'au', 'aux', 'et', 'ou', 'par', 'pour', 'dans', 'sur', 'avec', 'sans',
