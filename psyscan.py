@@ -128,9 +128,8 @@ VULGUS_CORPUS = {
 # CLASSE PSYSCAN
 # ========================
 class PSYSCAN:
-    def __init__(self):
-        pass
-
+  def __init__(self):
+    pass
 
 def nettoyer_texte(self, texte: str) -> str:
     for artifact in ORAL_ARTIFACTS:
