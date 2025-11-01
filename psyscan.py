@@ -303,7 +303,6 @@ rapport = f"""[Rapport PSYSCAN v1.0]{titre}
 #### CONCLUSION : L'ÉTAT ÉMOTIONNEL DU POUVOIR
 * {icone} {conclusion}
 """
-
 return textwrap.dedent(rapport).strip()
 
 # === FONCTION PRINCIPALE ===
