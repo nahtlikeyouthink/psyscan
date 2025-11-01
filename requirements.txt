@@ -1,2 +1,6 @@
 nltk
 textblob
+spacy
+# Installation du modèle français directement comme une dépendance pip
+# Utilisez la version correspondant à votre version de spacy
+https://github.com/explosion/spacy-models/releases/download/fr_core_news_sm-3.7.0/fr_core_news_sm-3.7.0.tar.gz
