@@ -141,26 +141,26 @@ def nettoyer_texte(self, texte: str) -> str:
     return texte.lower()
 
 def lemmatiser(self, tokens: List[str]) -> List[str]:
-tagged = pos_tag(tokens)
-return [
-lemmatizer.lemmatize(word, get_wordnet_pos(tag))
-for word, tag in tagged
-]
+  tagged = pos_tag(tokens)
+  return [
+    lemmatizer.lemmatize(word, get_wordnet_pos(tag))
+    for word, tag in tagged
+  ]
 
 def filtrer_ner(self, tokens: List[str], entities: set) -> List[str]:
-return [t for t in tokens if t not in entities and len(t) > 2 and t not in STOPWORDS]
+  return [t for t in tokens if t not in entities and len(t) > 2 and t not in STOPWORDS]
 
 def cooccurrence(self, tokens: List[str], s1: str, window: int = 5) -> List[str]:
-indices = [i for i, t in enumerate(tokens) if t == s1]
-coocs = defaultdict(int)
+  indices = [i for i, t in enumerate(tokens) if t == s1]
+  coocs = defaultdict(int)
 for idx in indices:
-start = max(0, idx - window)
-end = min(len(tokens), idx + window + 1)
-context = tokens[start:idx] + tokens[idx+1:end]
+  start = max(0, idx - window)
+  end = min(len(tokens), idx + window + 1)
+  context = tokens[start:idx] + tokens[idx+1:end]
 for word in context:
-if word != s1 and word not in STOPWORDS:
-coocs[word] += 1
-return [word for word, _ in sorted(coocs.items(), key=lambda x: x[1], reverse=True)[:2]]
+  if word != s1 and word not in STOPWORDS:
+    coocs[word] += 1
+    return [word for word, _ in sorted(coocs.items(), key=lambda x: x[1], reverse=True)[:2]]
 
 def polarite_s1(self, texte: str, s1: str) -> str:
 blob = TextBlob(texte)
