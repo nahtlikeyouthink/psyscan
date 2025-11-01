@@ -196,21 +196,20 @@ def psi_scan(self, texte: str) -> dict:
     res2 = min(75 + count_s1 * 2, 99)
     indice_psi = round((centralite + res1 + res2) / 3, 1)
     polarite = self.polarite_s1(texte, s1)
-
-return {
-  's1': s1,
-  'centralite': centralite,
-  'top_mots': [w for w, _ in top[:3]],
-  'coocs': coocs,
-  'je': je,
-  'nous': nous,
-  'ratio_nous_je': round(ratio_nous_je, 1),
-  'resistance1': res1,
-  'resistance2': res2,
-  'indice_psi': indice_psi,
-  'polarite': polarite,
-  'total_mots': total
-}
+    return {
+      's1': s1,
+      'centralite': centralite,
+      'top_mots': [w for w, _ in top[:3]],
+      'coocs': coocs,
+      'je': je,
+      'nous': nous,
+      'ratio_nous_je': round(ratio_nous_je, 1),
+      'resistance1': res1,
+      'resistance2': res2,
+      'indice_psi': indice_psi,
+      'polarite': polarite,
+      'total_mots': total
+    }
 
 # === ÉTAPE 2 : Ψ-LOGUE ===
 def psi_logue(self, scan: dict) -> dict:
