@@ -1,5 +1,4 @@
-# PSYSCAN - Ethical Guidelines for Use (v1.0)
-
+# PSYSCAN (v1.0) - ETHICAL GUIDELINES
 **Legal License**: [AGPL-3.0](LICENSE)  
 
 **This document is an integral part of the software license.** Use is conditional upon adherence to these guidelines, in addition to AGPL-3.0.
