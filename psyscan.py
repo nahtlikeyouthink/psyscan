@@ -283,11 +283,9 @@ risque = C["risque"]["institution"] if scan['nous'] > scan['je'] * 2 else C["ris
 
 # === CONCLUSION ===
 conclusion = C["conclusion"][icone]
-
 rapport = f"""[Rapport PSYSCAN v1.0]{titre}
 
 #### ANALYSE DE LA NARRATIVE INCONSCIENTE DU DISCOURS
-
 * **Mot-Clé Central (L'Ancrage) :** {ancrage} ({int(scan['centralite'])} %)
 * **La Fissure Révélée (La Problématique) :** {fissure}
 * **Le Projet de Leadership :** {projet}
@@ -301,9 +299,8 @@ rapport = f"""[Rapport PSYSCAN v1.0]{titre}
 * **Le Risque Principal :** {risque}
 
 #### CONCLUSION : L'ÉTAT ÉMOTIONNEL DU POUVOIR
-* {icone} {conclusion}
-"""
-  return textwrap.dedent(rapport).strip()
+* {icone} {conclusion}"""
+return textwrap.dedent(rapport).strip()
 
 # === FONCTION PRINCIPALE ===
 def analyser(self, texte: str, titre: str = "") -> str:
