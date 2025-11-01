@@ -184,7 +184,7 @@ filtered = self.filtrer_ner(lemmas, entities)
 freq = Counter(filtered)
 total = sum(freq.values())
 if total == 0:
-return {'error': 'Aucun mot significatif détecté'}
+  return {'error': 'Aucun mot significatif détecté'}
 
 top = freq.most_common(5)
 s1, count_s1 = top[0]
@@ -234,34 +234,34 @@ ratio = scan['ratio_nous_je']
 
 # === ICÔNE NUANCÉE ===
 if indice > 90:
-icone = "FORCLUSION"
+  icone = "FORCLUSION"
 elif indice > 80:
-icone = "SURRÉGIME"
+  icone = "SURRÉGIME"
 elif indice > 65:
-icone = "ATTENTION"
+  icone = "ATTENTION"
 elif indice < 50:
-icone = "CONFIANCE"
+  icone = "CONFIANCE"
 else:
-icone = "STABLE"
+  icone = "STABLE"
 
 # === ANCRAGE ===
 ancrage = C["ancrage"].get(s1, f"L’obsession de « {s1} » comme acte de pouvoir")
 
 # === FISSURE (avec maturité) ===
 if ratio > 3:
-fissure = C["fissure"]["nous_dominant"]
+  fissure = C["fissure"]["nous_dominant"]
 elif scan['je'] == 0:
-fissure = C["fissure"]["je_absent"]
+  fissure = C["fissure"]["je_absent"]
 elif 0.7 <= ratio <= 1.3 and indice < 60:
-fissure = C["fissure"]["maturite"]
+  fissure = C["fissure"]["maturite"]
 else:
-fissure = C["fissure"]["je_isolé"]
+  fissure = C["fissure"]["je_isolé"]
 
 # === PROJET ===
 if scan['nous'] > 10:
-projet = C["projet"]["suture_sociale"]
+  projet = C["projet"]["suture_sociale"]
 else:
-projet = C["projet"]["maitrise_directe"]
+  projet = C["projet"]["maitrise_directe"]
 
 # === RITUEL ===
 count_s1 = len(re.findall(rf'\b{s1}\b', texte_global.lower()))
@@ -272,15 +272,15 @@ contrat = f"Vous devez {s1} — sinon tout s’effondre."
 
 # === DÉPENDANCE (équilibre si stable) ===
 if indice < 50:
-dependance = C["dependance"]["equilibre"]
+  dependance = C["dependance"]["equilibre"]
 elif s1 == "refuser":
-dependance = C["dependance"]["refus_actif"]
+  dependance = C["dependance"]["refus_actif"]
 elif polarite == "positif":
-dependance = C["dependance"]["positif"].format(s1=s1)
+  dependance = C["dependance"]["positif"].format(s1=s1)
 elif polarite == "négatif":
-dependance = C["dependance"]["négatif"].format(s1=s1)
+  dependance = C["dependance"]["négatif"].format(s1=s1)
 else:
-dependance = C["dependance"]["action"]
+  dependance = C["dependance"]["action"]
 
 # === RISQUE ===
 risque = C["risque"]["institution"] if scan['nous'] > scan['je'] * 2 else C["risque"]["personne"]
@@ -312,30 +312,29 @@ return textwrap.dedent(rapport).strip()
 
 # === FONCTION PRINCIPALE ===
 def analyser(self, texte: str, titre: str = "") -> str:
-global texte_global
-texte_global = texte
-scan = self.psi_scan(texte)
+  global texte_global
+  texte_global = texte
+  scan = self.psi_scan(texte)
 if 'error' in scan:
-return f"Erreur : {scan['error']}"
-logue = self.psi_logue(scan)
-return self.psi_vulgus(scan, logue, titre)
-
+  return f"Erreur : {scan['error']}"
+  logue = self.psi_logue(scan)
+  return self.psi_vulgus(scan, logue, titre)
 
 # ========================
 # EXÉCUTION
 # ========================
 if __name__ == "__main__":
-scanner = PSYSCAN()
-print("PSYSCAN v1.0 – Entrez le discours (Ctrl+D pour terminer) :\n")
-lignes = []
+  scanner = PSYSCAN()
+  print("PSYSCAN v1.0 – Entrez le discours (Ctrl+D pour terminer) :\n")
+  lignes = []
 try:
-while True:
-ligne = input()
-lignes.append(ligne)
+  while True:
+    ligne = input()
+    lignes.append(ligne)
 except EOFError:
-pass
-discours = "\n".join(lignes).strip()
-if discours:
-print("\n" + scanner.analyser(discours, "Discours analysé"))
-else:
-print("Aucun texte saisi.")
+  pass
+  discours = "\n".join(lignes).strip()
+  if discours:
+    print("\n" + scanner.analyser(discours, "Discours analysé"))
+  else:
+    print("Aucun texte saisi.")
