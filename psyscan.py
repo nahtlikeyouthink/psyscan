@@ -172,8 +172,8 @@ if not sentences_with_s1:
 
 # === ÉTAPE 1 : Ψ-SCAN ===
 def psi_scan(self, texte: str) -> dict:
-global texte_global
-texte_global = texte
+  global texte_global
+  texte_global = texte
 
 texte_net = self.nettoyer_texte(texte)
 tokens = nltk.word_tokenize(texte_net, language='french')
