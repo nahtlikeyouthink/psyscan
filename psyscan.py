@@ -217,20 +217,20 @@ return {
 
 # === ÉTAPE 2 : Ψ-LOGUE ===
 def psi_logue(self, scan: dict) -> dict:
-s1 = scan['s1']
-boucle = ' → '.join(scan['coocs']) if scan['coocs'] else ' → '.join(scan['top_mots'][1:3])
-faille = f"glissement je→nous ({scan['je']}→{scan['nous']})"
-polarite = scan['polarite']
-axiome = f"Le {s1.upper()} ({polarite}) suture la faille via la boucle {boucle}."
-return {'axiome': axiome, 'boucle': boucle}
+  s1 = scan['s1']
+  boucle = ' → '.join(scan['coocs']) if scan['coocs'] else ' → '.join(scan['top_mots'][1:3])
+  faille = f"glissement je→nous ({scan['je']}→{scan['nous']})"
+  polarite = scan['polarite']
+  axiome = f"Le {s1.upper()} ({polarite}) suture la faille via la boucle {boucle}."
+  return {'axiome': axiome, 'boucle': boucle}
 
 # === ÉTAPE 3 : Ψ-VULGUS v1.0 ===
 def psi_vulgus(self, scan: dict, logue: dict, titre: str = "") -> str:
-C = VULGUS_CORPUS
-s1 = scan['s1']
-indice = scan['indice_psi']
-polarite = scan['polarite']
-ratio = scan['ratio_nous_je']
+  C = VULGUS_CORPUS
+  s1 = scan['s1']
+  indice = scan['indice_psi']
+  polarite = scan['polarite']
+  ratio = scan['ratio_nous_je']
 
 # === ICÔNE NUANCÉE ===
 if indice > 90:
