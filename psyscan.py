@@ -133,7 +133,8 @@ class PSYSCAN:
     pass
 
 def nettoyer_texte(self, texte: str) -> str:
-    for artifact in ORAL_ARTIFACTS:
+
+  for artifact in ORAL_ARTIFACTS:
     texte = re.sub(rf'\b{artifact}\b', '', texte, flags=re.IGNORECASE)
     texte = re.sub(r'[^\w\s\.\?\!]', ' ', texte)
     texte = re.sub(r'\s+', ' ', texte).strip()
