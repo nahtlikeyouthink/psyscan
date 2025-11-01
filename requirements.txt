@@ -1,2 +1,2 @@
-nltk
-textblob
+spacy==3.7.5
+https://github.com/explosion/spacy-models/releases/download/fr_core_news_sm-3.7.1/fr_core_news_sm-3.7.1-py3-none-any.whl
