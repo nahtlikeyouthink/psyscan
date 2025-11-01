@@ -34,18 +34,26 @@ import nltk
 import os
 import sys
 
-# Définir le répertoire de données de NLTK pour l'environnement Streamlit
-# Cela garantit que les données sont téléchargées au bon endroit.
-# L'environnement virtuel de Streamlit est /home/adminuser/venv
-nltk_data_dir = os.path.join(sys.prefix, 'nltk_data')
+# ----------------------------------------------------
+# CORRECTION : Utiliser un chemin local et accessible en écriture
+# Le répertoire temporaire /tmp est garanti d'être accessible.
+# ----------------------------------------------------
+nltk_data_dir = "/tmp/nltk_data" 
+
+# 1. Crée le dossier s'il n'existe pas. (Fonctionne dans /tmp)
 if not os.path.exists(nltk_data_dir):
-    os.makedirs(nltk_data_dir)
+    # 'exist_ok=True' évite une erreur si un autre processus l'a créé entre-temps
+    os.makedirs(nltk_data_dir, exist_ok=True) 
+
+# 2. Ajoute ce nouveau chemin à la liste des chemins de données de NLTK
 nltk.data.path.append(nltk_data_dir)
 
-# Téléchargement des données nécessaires, y compris les stopwords
+# 3. Télécharge toutes les données NLTK nécessaires
 try:
+    print("Téléchargement des ressources NLTK...") # Pour le log de Streamlit
+    
+    # La fonction download doit pointer vers le nouveau dossier
     nltk.download('stopwords', download_dir=nltk_data_dir, quiet=True)
-    # Assurez-vous que toutes les autres dépendances NLTK sont là aussi :
     nltk.download('punkt', download_dir=nltk_data_dir, quiet=True)
     nltk.download('wordnet', download_dir=nltk_data_dir, quiet=True)
     nltk.download('omw-1.4', download_dir=nltk_data_dir, quiet=True)
@@ -53,17 +61,23 @@ try:
     nltk.download('maxent_ne_chunker', download_dir=nltk_data_dir, quiet=True)
     nltk.download('words', download_dir=nltk_data_dir, quiet=True)
     nltk.download('vader_lexicon', download_dir=nltk_data_dir, quiet=True)
+    print("Téléchargement NLTK terminé.")
+
+    # Téléchargement des données TextBlob (bonne pratique)
+    try:
+        import textblob
+        from textblob.download_corpora import download_lite
+        download_lite()
+    except Exception as e:
+        print(f"Erreur lors du téléchargement des données TextBlob : {e}")
+
 
 except Exception as e:
-    print(f"Erreur lors du téléchargement des données NLTK : {e}")
+    # Affiche l'erreur si elle persiste (par exemple, si la connexion réseau échoue)
+    print(f"Erreur NLTK critique : {e}")
 
-# Assurez-vous que l'installation des données TextBlob est aussi effectuée :
-try:
-    import textblob
-    from textblob.download_corpora import download_lite
-    download_lite()
-except ImportError:
-    pass # TextBlob n'est pas utilisé ou est déjà installé.
+# Le reste de votre script continuera ici
+# STOPWORDS = set(stopwords.words('french')) # Cette ligne sera exécutée après
 
 STOPWORDS = set(stopwords.words('french'))
 STOPWORDS.update({
