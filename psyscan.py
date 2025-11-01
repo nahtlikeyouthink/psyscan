@@ -161,14 +161,14 @@ for word in context:
   if word != s1 and word not in STOPWORDS:
     coocs[word] += 1
     return [word for word, _ in sorted(coocs.items(), key=lambda x: x[1], reverse=True)[:2]]
-
 def polarite_s1(self, texte: str, s1: str) -> str:
-blob = TextBlob(texte)
-sentences_with_s1 = [s for s in blob.sentences if s1 in s.lower()]
+  blob = TextBlob(texte)
+  sentences_with_s1 = [s for s in blob.sentences if s1 in s.lower()]
+  
 if not sentences_with_s1:
-return "neutre"
-polarity = sum(s.sentiment.polarity for s in sentences_with_s1) / len(sentences_with_s1)
-return "positif" if polarity > 0.1 else "négatif" if polarity < -0.1 else "neutre"
+  return "neutre"
+  polarity = sum(s.sentiment.polarity for s in sentences_with_s1) / len(sentences_with_s1)
+  return "positif" if polarity > 0.1 else "négatif" if polarity < -0.1 else "neutre"
 
 # === ÉTAPE 1 : Ψ-SCAN ===
 def psi_scan(self, texte: str) -> dict:
