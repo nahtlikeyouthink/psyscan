@@ -10,15 +10,11 @@ import textwrap
 from typing import List, Dict
 
 # === TÉLÉCHARGEMENT NLTK (exécuter une fois) ===
-# nltk.download('punkt')
-# nltk.download('stopwords')
-# nltk.download('averaged_perceptron_tagger')
-# nltk.download('maxent_ne_chunker')
-# nltk.download('words')
-# nltk.download('wordnet')
-# nltk.download('omw-1.4')
-# nltk.download('vader_lexicon')
-# pip install textblob
+
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('maxent_ne_chunker')
 
 from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer
