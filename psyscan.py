@@ -433,8 +433,7 @@ st.markdown("---") # Séparation visuelle
 # =========================================================
 # AJOUT MINIMALISTE DU LIEN
 # =========================================================
-st.markdown(
-    "**Ressources Auteur :** [iamnaht Linktree](https://linktr.ee/iamnaht)", 
-    unsafe_allow_html=False
-)
+
+st.markdown("[Lien vers mes ressources](https://linktr.ee/iamnaht)")
+
 # ==================================
