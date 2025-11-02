@@ -434,6 +434,6 @@ st.markdown("---") # Séparation visuelle
 # AJOUT MINIMALISTE DU LIEN
 # =========================================================
 
-st.markdown("[Lien vers mes ressources](https://linktr.ee/iamnaht)")
+st.markdown("[NAHT LIKE YOU THINK](https://linktr.ee/iamnaht)")
 
 # ==================================
