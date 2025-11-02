@@ -8,15 +8,62 @@ import nltk
 from collections import Counter, defaultdict
 import textwrap
 from typing import List, Dict
+import os
+import sys
+import streamlit as st # S'assurer que Streamlit est importé
 
-import streamlit as st
+# ==========================================================
+# 1. CONFIGURATION ET TÉLÉCHARGEMENT DES RESSOURCES NLTK
+# (Utilisation de st.cache_resource pour l'exécution unique)
+# ==========================================================
 
-# === TÉLÉCHARGEMENT NLTK (exécuter une fois) ===
+# --------------------------------------------------------------------
+# Chemin Local NLTK : Utiliser un chemin accessible en écriture (/tmp)
+# --------------------------------------------------------------------
+nltk_data_dir = "/tmp/nltk_data"
+os.environ["NLTK_DATA"] = nltk_data_dir # Optionnel mais sécurisant
 
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('averaged_perceptron_tagger')
-nltk.download('maxent_ne_chunker')
+# Décorateur pour s'assurer que le téléchargement n'est fait qu'une seule fois
+@st.cache_resource
+def setup_nltk_and_download():
+    # 1. Crée le dossier s'il n'existe pas
+    if not os.path.exists(nltk_data_dir):
+        os.makedirs(nltk_data_dir, exist_ok=True)
+    
+    # 2. Ajoute ce nouveau chemin au path de NLTK
+    if nltk_data_dir not in nltk.data.path:
+        nltk.data.path.append(nltk_data_dir)
+
+    st.info(f"Configuration NLTK sur : {nltk_data_dir}. Téléchargement en cours...")
+
+    try:
+        # Téléchargement de TOUTES les données NLTK nécessaires
+        # On utilise download_dir=nltk_data_dir pour forcer l'écriture au bon endroit.
+        nltk.download('stopwords', download_dir=nltk_data_dir, quiet=True)
+        nltk.download('punkt', download_dir=nltk_data_dir, quiet=True) # Résout l'erreur récente
+        nltk.download('wordnet', download_dir=nltk_data_dir, quiet=True)
+        nltk.download('omw-1.4', download_dir=nltk_data_dir, quiet=True)
+        nltk.download('averaged_perceptron_tagger', download_dir=nltk_data_dir, quiet=True)
+        nltk.download('maxent_ne_chunker', download_dir=nltk_data_dir, quiet=True)
+        nltk.download('words', download_dir=nltk_data_dir, quiet=True)
+        nltk.download('vader_lexicon', download_dir=nltk_data_dir, quiet=True)
+        
+        # Téléchargement des données TextBlob (si TextBlob est bien installé via requirements.txt)
+        import textblob
+        from textblob.download_corpora import download_lite
+        download_lite()
+        
+        st.success("Ressources NLTK et TextBlob prêtes!")
+
+    except Exception as e:
+        st.error(f"Erreur NLTK/TextBlob critique. Impossible de télécharger les données : {e}")
+
+# Exécutez la fonction de setup au début du script
+setup_nltk_and_download()
+
+# ==========================================================
+# 2. IMPORTS DES CORPS NLTK (MAINTENANT SÛRS)
+# ==========================================================
 
 from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer
