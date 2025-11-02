@@ -9,6 +9,8 @@ from collections import Counter, defaultdict
 import textwrap
 from typing import List, Dict
 
+import streamlit as st
+
 # === TÉLÉCHARGEMENT NLTK (exécuter une fois) ===
 
 nltk.download('punkt')
@@ -317,21 +319,47 @@ class PSYSCAN:
         return self.psi_vulgus(scan, logue, titre)
 
 
-# ========================
-# EXÉCUTION
-# ========================
-if __name__ == "__main__":
-    scanner = PSYSCAN()
-    print("PSYSCAN v1.0 – Entrez le discours (Ctrl+D pour terminer) :\n")
-    lignes = []
-    try:
-        while True:
-            ligne = input()
-            lignes.append(ligne)
-    except EOFError:
-        pass
-    discours = "\n".join(lignes).strip()
-    if discours:
-        print("\n" + scanner.analyser(discours, "Discours analysé"))
-    else:
-        print("Aucun texte saisi.")
+# ==================================
+# SECTION D'EXÉCUTION STREAMLIT
+# ==================================
+
+# 1. Configuration de l'interface et saisie utilisateur
+st.title("PSYSCAN v1.0 - Analyse de Discours")
+st.markdown("---") # Ligne de séparation visuelle
+
+# Utilisation d'un widget de texte multiligne pour l'entrée
+discours = st.text_area(
+    "Entrez le discours à analyser ici :", 
+    height=200, 
+    placeholder="Tapez ou collez votre texte ici..."
+)
+
+# 2. Logique d'exécution et affichage des résultats
+if discours:
+    
+    # Bouton pour lancer l'analyse (facultatif mais recommandé pour les longues analyses)
+    if st.button('Analyser le discours'):
+        
+        # Affichage d'un spinner pendant l'exécution
+        with st.spinner('Analyse en cours... Veuillez patienter.'):
+            
+            # Instanciation de la classe d'analyse
+            try:
+                scanner = PSYSCAN() 
+            except NameError:
+                st.error("Erreur: La classe 'PSYSCAN' n'est pas définie dans le script.")
+                scanner = None # Empêche l'analyse si la classe n'existe pas
+
+            if scanner:
+                # Exécution de l'analyse (remplace le scanner.analyser)
+                resultat_analyse = scanner.analyser(discours, "Discours analysé")
+
+                # Affichage des résultats (remplace le print)
+                st.header("Résultats de l'Analyse")
+                st.write(resultat_analyse) # st.write gère l'affichage de texte, dataframes, etc.
+            
+else:
+    # Message affiché si la zone de texte est vide
+    st.info("Veuillez saisir un texte dans la zone ci-dessus et cliquer sur 'Analyser'.")
+
+# ==================================
