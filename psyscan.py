@@ -433,12 +433,8 @@ st.markdown("---") # Séparation visuelle
 # =========================================================
 # AJOUT MINIMALISTE DU LIEN
 # =========================================================
-
-# Affiche le lien en bas de page, après la zone de saisie.
-
 st.markdown(
-    [iamnaht Linktree](https://linktr.ee/iamnaht)", 
+    "**Ressources Auteur :** [iamnaht Linktree](https://linktr.ee/iamnaht)", 
     unsafe_allow_html=False
 )
-
 # ==================================
