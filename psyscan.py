@@ -61,16 +61,17 @@ def get_wordnet_pos(treebank_tag):
 # NER
 # ========================
 def extract_entities(text: str) -> set:
-    try:
-       chunked = ne_chunk(pos_tag(nltk.word_tokenize(text)))
-        entities = set()
-        for chunk in chunked:
-            if hasattr(chunk, 'label'):
-                entity = ' '.join(c[0] for c in chunk)
-                entities.add(entity.lower())
+  try:
+    chunked = ne_chunk(pos_tag(nltk.word_tokenize(text)))
+    entities = set()
+    for chunk in chunked:
+      if hasattr(chunk, 'label'):
+        entity = ' '.join(c[0] for c in chunk)
+        entities.add(entity.lower())
         return entities
-    except:
-        return set()
+
+  except:
+    return set()
 
 # ========================
 # CORPUS VULGUS v1.0
