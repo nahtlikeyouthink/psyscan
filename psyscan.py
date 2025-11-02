@@ -428,6 +428,8 @@ st.markdown("""
 Notre outil quantifie la force de ce S1 en calculant l'**Indice $\Psi$ (Psi)**, une mesure synthétique de sa **centralité** et de sa **résistance au bruit**. Un score élevé signale une **dépendance critique** de la structure du pouvoir à un seul mot-clé.
 """)
 
+st.markdown("---") # Séparation visuelle
+
 # =========================================================
 # AJOUT MINIMALISTE DU LIEN
 # =========================================================
@@ -435,7 +437,7 @@ Notre outil quantifie la force de ce S1 en calculant l'**Indice $\Psi$ (Psi)**, 
 # Affiche le lien en bas de page, après la zone de saisie.
 
 st.markdown(
-    "**Ressources Auteur :** [iamnaht Linktree](https://linktr.ee/iamnaht)", 
+    [iamnaht Linktree](https://linktr.ee/iamnaht)", 
     unsafe_allow_html=False
 )
 
