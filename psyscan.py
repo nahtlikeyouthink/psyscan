@@ -1,7 +1,7 @@
 # psyscan.py
 # PSYSCAN v1.0 – Scanner méta-psychique du discours public
 # Licence : AGPL-3.0 + ETHICAL_GUIDELINES.md
-# Auteur : NAHT LIKE YOU THINK – DOI : 10.5281/zenodo.xxxxxxx
+# Auteur : NAHT LIKE YOU THINK – DOI : https://doi.org/10.5281/zenodo.17504541
 
 import re
 import nltk
@@ -64,7 +64,6 @@ setup_nltk_and_download()
 # ==========================================================
 # 2. IMPORTS DES CORPS NLTK (MAINTENANT SÛRS)
 # ==========================================================
-
 from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer
 from nltk import pos_tag, ne_chunk
