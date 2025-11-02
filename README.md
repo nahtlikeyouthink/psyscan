@@ -3,7 +3,7 @@ PSYSCAN révèle la structure du pouvoir — pas les individus.
 
 **Author** / Auteur : Naht Like You Think
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.xxxxxxx.svg)](https://doi.org/10.5281/zenodo.xxxxxxx)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17504541.svg)](https://doi.org/10.5281/zenodo.17504541)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
 ---
@@ -63,7 +63,7 @@ python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords'); nltk
 
 If you use this work in a publication, please cite the Zenodo archive via its DOI:
 
-**NAHT LIKE YOU THINK. (2025). *PSYSCAN v1.0*. Zenodo. DOI: 10.5281/zenodo.xxxxxxx**
+**NAHT LIKE YOU THINK. (2025). *PSYSCAN v1.0*. Zenodo. DOI: 10.5281/zenodo.17504541**
 
 ---
 
