@@ -8,6 +8,25 @@ PSYSCAN révèle la structure du pouvoir — pas les individus.
 
 ---
 
+### Sismographe du Discours Politique
+
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://psyscan-nn4rgzvcuajg562b4opbu3.streamlit.app/)
+
+**Lancer l'Analyse :** Le badge ci-dessus mène à l'interface utilisateur (Streamlit Cloud), permettant l'analyse de discours en temps réel sans aucune installation.
+
+---
+
+### Résumé
+
+PSYSCAN révèle la structure du pouvoir — pas les individus. L'outil est un sismographe du discours qui part du postulat psychanalytique (Lacan) que le discours politique est pulsionnel et organisé autour d'un Signifiant-Maître (S1).Méthode (FR)
+
+Outil open-source d’analyse formelle du discours (TALN). Il détecte le Signifiant-Maître (S1), mesure sa centralité et sa résistance au bruit, et génère un rapport interprétatif nuancé (via l'Indice Ψ), révélant la stabilité structurelle du pouvoir.
+
+ÉthiqueL'outil est conçu comme un instrument de vérité publique : libre, éthique (AGPL-3.0), et focalisé sur les structures plutôt que sur l'interprétation individuelle.
+
+
+---
+
 ### Licence & Ethics / Licence & Éthique
 
 This software is distributed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**, ensuring code freedom and transparency (strong Copyleft).
