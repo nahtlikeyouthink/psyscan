@@ -13,7 +13,8 @@ import streamlit as st
 
 # === TÉLÉCHARGEMENT NLTK (exécuter une fois) ===
 
-nltk.download('punkt')
+nltk.download('punkt', force=True)
+
 nltk.download('stopwords')
 nltk.download('averaged_perceptron_tagger')
 nltk.download('maxent_ne_chunker')
