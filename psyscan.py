@@ -409,4 +409,23 @@ else:
     # Message affiché si la zone de texte est vide
     st.info("Veuillez saisir un texte dans la zone ci-dessus et cliquer sur 'Analyser'.")
 
+st.markdown("---") # Séparation avant la zone de saisie
+
+# =========================================================
+# AJOUT DE LA PRÉSENTATION PHILOSOPHIQUE ICI
+# =========================================================
+
+st.header("Le Postulat Philosophique : La Structure du Pouvoir")
+
+st.markdown("""
+**PSYSCAN révèle la structure du pouvoir — pas les individus.**
+
+Cet outil open-source part d'une prémisse psychanalytique et philosophique : le discours politique est d'abord **pulsionnel** et **structurant**. Le **Signifiant-Maître (S1)** n'est pas un choix conscient, mais la *clé de voûte* autour de laquelle le pouvoir s'organise. PSYSCAN agit comme un **sismographe du discours**, mesurant les **tremblements structurels** pour révéler la nature et la stabilité du pouvoir.
+""")
+
+st.subheader("Mesurer l'Invisible (L'Indice Ψ)")
+st.markdown("""
+Notre outil quantifie la force de ce S1 en calculant l'**Indice $\Psi$ (Psi)**, une mesure synthétique de sa **centralité** et de sa **résistance au bruit**. Un score élevé signale une **dépendance critique** de la structure du pouvoir à un seul mot-clé.
+""")
+
 # ==================================
