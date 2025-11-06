@@ -1,10 +1,2 @@
 nltk
 textblob
-streamlit
-spacy
-langdetect
-matplotlib
-fr_core_news_sm
-en_core_web_sm
-es_core_news_sm
-# etc.
