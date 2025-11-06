@@ -1,6 +1,5 @@
 nltk
 textblob
-
 streamlit
 spacy
 langdetect
