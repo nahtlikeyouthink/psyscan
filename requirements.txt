@@ -1,5 +1,8 @@
-nltk
-textblob
+# requirements.txt
 streamlit
 spacy
+nltk
+textblob
 langdetect
+# Ajoutez numpy si non présent, bien que spacy le tire normalement
+numpy
