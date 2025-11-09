@@ -1,1 +1,4 @@
-
+# packages.txt
+build-essential
+gcc
+python3-dev
