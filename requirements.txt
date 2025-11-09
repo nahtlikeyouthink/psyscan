@@ -1,8 +1,9 @@
 # requirements.txt
 streamlit
-spacy
+spacy<3.7
+# OU pour être plus spécifique :
+# spacy==3.6.0  # ou 3.6.1, 3.6.2...
 nltk
 textblob
 langdetect
-# Ajoutez numpy si non présent, bien que spacy le tire normalement
-numpy
+#...
