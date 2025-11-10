@@ -1,4 +1,4 @@
-# app_v2.py
+# psyscan.py
 import streamlit as st
 from psyscan_core_v2 import analyze_discourse
 import matplotlib.pyplot as plt
@@ -12,18 +12,20 @@ st.title("PSYSCAN v2.1 — Sismographe du Discours")
 st.caption("*Analyse lacanienne en temps réel : évolution symbolique, topologie, points de rupture.*")
 
 # =========================================================
-# AJOUT DE LA PRÉSENTATION PHILOSOPHIQUE
+# PRÉSENTATION PHILOSOPHIQUE
 # =========================================================
 st.header("Fondements Épistémologiques")
 st.markdown("""
 **PSYSCAN révèle la structure du pouvoir — pas les individus.**  
 Cet outil open-source part d'une prémisse psychanalytique et philosophique : le discours politique est d'abord **pulsionnel** et **structurant**. Le **Signifiant-Maître (S1)** n'est pas un choix conscient, mais la *clé de voûte* autour de laquelle le pouvoir s'organise. PSYSCAN agit comme un **sismographe du discours**, mesurant les **tremblements structurels** pour révéler la nature et la stabilité du pouvoir.
 """)
+
 st.subheader("Mesurer l'Invisible (L'Indice Ψ)")
 st.markdown("""
-Notre outil quantifie la force de ce S1 en calculant l'**Indice $\Psi$ (Psi)**, une mesure synthétique de sa **centralité** et de sa **résistance au bruit**. Un score élevé signale une **dépendance critique** de la structure du pouvoir à un seul mot-clé.
+L'**Indice $\Psi$ (Psi)** quantifie la **centralité** du S1 dans le discours.  
+Un score élevé indique une **dépendance critique** à un seul signifiant — un point de fragilité ou de totalisation symbolique.
 """)
-st.markdown("---")  # Séparation visuelle
+st.markdown("---")
 
 # === ZONE 1 : LANGUE ===
 col1, _ = st.columns([1, 3])
@@ -45,10 +47,29 @@ if st.button("Lancer le sismographe", type="primary"):
     else:
         with st.spinner("Analyse en cours..."):
             try:
-                s1_history, regimes, key_moments = analyze_discourse(text, lang, block_size)
+                s1_history, regimes, key_moments, psi = analyze_discourse(text, lang, block_size)
             except Exception as e:
                 st.error(f"Erreur lors de l'analyse : {str(e)}")
                 st.stop()
+
+        # === INDICE Ψ ===
+        st.subheader("Indice Ψ — Force du Signifiant-Maître")
+        col_psi, col_help = st.columns([1, 4])
+        with col_psi:
+            st.metric("**Indice Ψ**", f"**{psi:.3f}**", help="Centralité du S1 (0 = dispersé, 1 = dominant)")
+        with col_help:
+            st.caption("Plus Ψ est élevé, plus le discours dépend d’un seul signifiant. Ex : 0.85 = S1 ultra-dominant.")
+
+        # Jauge visuelle
+        st.progress(psi)
+        if psi > 0.7:
+            st.warning("**Ψ élevé** → Risque de totalisation symbolique (S1 hégémonique)")
+        elif psi < 0.3:
+            st.info("**Ψ bas** → Discours dispersé, peu d’ancrage symbolique")
+        else:
+            st.success("**Ψ équilibré** → Discours structuré mais souple")
+
+        st.markdown("---")
 
         # === SISMO VISUEL ===
         st.subheader("Sismographe Symbolique")
@@ -91,15 +112,18 @@ if st.button("Lancer le sismographe", type="primary"):
             - **Ruptures** : **{len(key_moments)}** moments de bascule.
             - **Interprétation** : Le discours organise le pouvoir autour de **{s1_global}**, avec des oscillations révélant les points de renégociation du lien social.
             """)
-        
+
         # === LIEN PÉDAGOGIQUE ===
         st.markdown("---")
         st.markdown("**PSYSCAN v2.1** — Outil d’analyse lacanienne | [GitHub](https://github.com/nahtlikeyouthink/psyscan/tree/v2.1-sismographe) | Éthique & open-source")
 
 # =========================================================
-# AJOUT MINIMALISTE DU LIEN EN BAS
+# LIEN NAHT LIKE YOU THINK (BAS DE PAGE)
 # =========================================================
 st.markdown("---")
-st.markdown("<div style='text-align: center; color: #666; font-size: 0.9em;'>"
-            "[Naht Like You Think](https://linktr.ee/iamnaht) — pensée critique & outils libres"
-            "</div>", unsafe_allow_html=True)
+st.markdown(
+    "<div style='text-align: center; color: #666; font-size: 0.9em; margin-top: 20px;'>"
+    "[Naht Like You Think](https://linktr.ee/iamnaht) — pensée critique & outils libres"
+    "</div>",
+    unsafe_allow_html=True
+)
