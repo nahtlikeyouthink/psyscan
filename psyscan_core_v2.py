@@ -67,6 +67,16 @@ def analyze_discourse(text, lang='Français', block_size=5):
 
     nlp = load_spacy_model(lang_code)
 
+    # === CALCUL DE L'INDICE Ψ ADAPTATIF ===
+    s1_freq = Counter(s1_history)
+    total = len(s1_history)
+    psi_brut = max(s1_freq.values()) / total if total > 0 else 0
+    
+    # NORMALISATION ADAPTATIVE
+    psi_adaptatif = psi_brut * (1 - block_size / 20.0)
+    
+    return s1_history, regimes, key_moments, round(psi_brut, 3), round(psi_adaptatif, 3)
+
     # --- TOKENISATION ROBUSTE ---
     try:
         sentences = sent_tokenize(text, language=nltk_lang)
