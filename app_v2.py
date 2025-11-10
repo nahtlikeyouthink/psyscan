@@ -128,7 +128,7 @@ st.markdown(
     <div style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #666;">
         <a href="https://linktr.ee/iamnaht" target="_blank" style="color: #666; text-decoration: underline;">
             Naht Like You Think
-        </a> — pensée critique &amp; outils libres
+        </a>
     </div>
     """,
     unsafe_allow_html=True
