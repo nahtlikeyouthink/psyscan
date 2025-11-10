@@ -58,11 +58,6 @@ if st.button("Lancer le sismographe", type="primary"):
         st.subheader("Mesurer l'Invisible (L'Indice Ψ)")
         col_psi, col_conf, col_help = st.columns([1, 1, 3])
 
-        st.markdown("""
-        L'**Indice $\Psi$ (Psi)** quantifie la **centralité** du S1 dans le discours.  
-        Un score élevé indique une **dépendance critique** à un seul signifiant — un point de fragilité ou de totalisation symbolique.
-        """)
-
         # === ÉCHELLE DE RÉFÉRENCE Ψ ===
         st.subheader("Échelle de référence — Interprétation du S1")
 
@@ -89,6 +84,11 @@ if st.button("Lancer le sismographe", type="primary"):
                 help="Force du S1 (normalisé selon granularité)"
             )
 
+        st.markdown("""
+        L'**Indice $\Psi$ (Psi)** quantifie la **centralité** du S1 dans le discours.  
+        Un score élevé indique une **dépendance critique** à un seul signifiant — un point de fragilité ou de totalisation symbolique.
+        """)
+        
         # Jauge visuelle (Ψₐ)
         st.progress(psi_adaptatif)
         if psi_adaptatif > 0.7:
