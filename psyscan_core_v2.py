@@ -32,7 +32,14 @@ def load_spacy_model(lang_code):
 
 def analyze_discourse(text, lang='Français', block_size=5):
     lang_code = 'fr' if lang.lower().startswith('fr') else 'en'
-    
+
+    # Dans analyze_discourse, après la boucle :
+from collections import Counter
+s1_freq = Counter(s1_history)
+total = len(s1_history)
+psi = max(s1_freq.values()) / total if total > 0 else 0
+return s1_history, regimes, key_moments, round(psi, 3)
+
     # --- 1. spaCy (cerveau) ---
     nlp = load_spacy_model(lang_code)
     
