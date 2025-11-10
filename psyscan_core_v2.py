@@ -6,7 +6,6 @@ from langdetect import detect
 import streamlit as st
 
 # --- AJOUT DE LA LOGIQUE DE GESTION DES MODÈLES SPAÇY POUR STREAMLIT CLOUD ---
-from spacy.util import get_installed_pipes
 
 LANG_MODELS = {
     'fr': 'fr_core_news_sm',
