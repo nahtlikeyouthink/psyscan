@@ -1,7 +1,13 @@
 # requirements.txt
+# Installe les dépendances complexes en premier, pour thinc/spacy
+numpy==1.24.4  # Fixer à une version stable compatible avec spacy 3.6 et Python 3.10
+
+# Dépendances principales
 streamlit
 spacy==3.6.0
-thinc==8.1.12
+thinc==8.1.12 
+
+# Autres dépendances
 nltk
 textblob
 langdetect
