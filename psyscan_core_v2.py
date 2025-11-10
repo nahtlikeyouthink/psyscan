@@ -1,8 +1,4 @@
-# psyscan.py
-# PSYSCAN v2.1 – Scanner méta-psychique du discours public
-# Licence : AGPL-3.0 + ETHICAL_GUIDELINES.md
-# Auteur : NAHT LIKE YOU THINK – DOI : https://doi.org/10.5281/zenodo.17504541
-
+# psyscan_core_v2.py
 import nltk
 from nltk.tokenize import sent_tokenize
 from textblob import TextBlob
@@ -11,7 +7,7 @@ from langdetect import detect
 import streamlit as st
 from collections import Counter
 
-# --- NLTK ---
+# --- NLTK : Téléchargement sécurisé ---
 def ensure_nltk_data():
     for res in ['punkt_tab', 'stopwords']:
         try:
@@ -20,6 +16,12 @@ def ensure_nltk_data():
             nltk.download(res, quiet=True)
 
 ensure_nltk_data()
+
+# --- Mapping langue NLTK ---
+NLTK_LANGUAGES = {
+    'fr': 'french',
+    'en': 'english'
+}
 
 # --- spaCy ---
 LANG_MODELS = {'fr': 'fr_core_news_sm', 'en': 'en_core_web_sm'}
@@ -54,6 +56,8 @@ def classify_regime(s1_history, polarity):
 
 def analyze_discourse(text, lang='Français', block_size=5):
     lang_code = 'fr' if lang.lower().startswith('fr') else 'en'
+    nltk_lang = NLTK_LANGUAGES.get(lang_code, 'english')
+
     try:
         detected = detect(text[:500])
         if detected[:2] != lang_code:
@@ -61,33 +65,24 @@ def analyze_discourse(text, lang='Français', block_size=5):
     except:
         pass
 
-# Mapping des codes langue vers NLTK
-NLTK_LANGUAGES = {
-    'fr': 'french',
-    'en': 'english'
-}
+    nlp = load_spacy_model(lang_code)
 
-nltk_lang = NLTK_LANGUAGES.get(lang_code, 'english')
-
-try:
-    sentences = sent_tokenize(text, language=nltk_lang)
-except LookupError:
-
-    nltk.download('punkt_tab', quiet=True)
+    # --- TOKENISATION ROBUSTE ---
     try:
         sentences = sent_tokenize(text, language=nltk_lang)
-    except:
-        st.warning(f"Tokenizer NLTK `{nltk_lang}` échoué → fallback anglais.")
-        sentences = sent_tokenize(text, language='english')
-except Exception as e:
-    st.warning(f"Erreur inattendue avec NLTK : {e} → fallback anglais.")
-    sentences = sent_tokenize(text, language='english')
-    except:
-        st.warning("Tokenizer NLTK échoué → fallback anglais.")
+    except LookupError:
+        nltk.download('punkt_tab', quiet=True)
+        try:
+            sentences = sent_tokenize(text, language=nltk_lang)
+        except:
+            st.warning(f"Tokenizer `{nltk_lang}` indisponible → fallback anglais.")
+            sentences = sent_tokenize(text, language='english')
+    except Exception:
+        st.warning("Erreur NLTK → fallback anglais.")
         sentences = sent_tokenize(text, language='english')
 
     blocks = [' '.join(sentences[i:i + block_size]) for i in range(0, len(sentences), block_size)]
-    s1_history, regimes, key_moments = [], [], []
+    s1_history, regimes, key_moments = [], [], []  
 
     for i, block in enumerate(blocks):
         s1 = detect_s1(block, nlp)
