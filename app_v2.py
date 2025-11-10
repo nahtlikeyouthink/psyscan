@@ -55,8 +55,13 @@ if st.button("Lancer le sismographe", type="primary"):
                 st.stop()
 
         # === INDICES : Ψₐ + CONFIANCE ===
-        st.subheader("Indices — Analyse Avancée")
+        st.subheader("Indices")
         col_psi, col_conf, col_help = st.columns([1, 1, 3])
+
+        st.markdown("""
+        L'**Indice $\Psi$ (Psi)** quantifie la **centralité** du S1 dans le discours.  
+        Un score élevé indique une **dépendance critique** à un seul signifiant — un point de fragilité ou de totalisation symbolique.
+        """)
 
         with col_psi:
             st.metric(
