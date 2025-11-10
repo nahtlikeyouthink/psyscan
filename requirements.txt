@@ -1,5 +1,5 @@
 streamlit
-spacy[lookups]==3.6.1
+spacy[lookups]==3.7.5
 nltk
 textblob
 langdetect
