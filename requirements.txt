@@ -5,3 +5,4 @@ textblob
 langdetect
 matplotlib
 numpy>=1.26.0
++# FORCED REBUILD - spacy 3.7.5 for Python 3.13
