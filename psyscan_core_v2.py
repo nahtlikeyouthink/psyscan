@@ -5,38 +5,38 @@ import spacy
 from langdetect import detect
 import streamlit as st
 
-# --- AJOUT DE LA LOGIQUE DE GESTION DES MODÈLES SPAÇY POUR STREAMLIT CLOUD ---
+from spacy.cli import download as spacy_download 
 
+# Modèles spaCy 
 LANG_MODELS = {
     'fr': 'fr_core_news_sm',
     'en': 'en_core_web_sm'
 }
-DEFAULT_MODEL = 'fr_core_news_sm'
-
-# Vérification et téléchargement des modèles nécessaires
+# Ce code s'exécute au démarrage de l'app Streamlit.
 for lang_code, model_name in LANG_MODELS.items():
-    if model_name not in get_installed_pipes():
-        print(f"Téléchargement du modèle spaCy : {model_name}...")
+    try:
+        # Tente de charger le modèle. Si le modèle n'est pas là, lève une OSError.
+        spacy.load(model_name)
+    except OSError:
+        print(f"Téléchargement du modèle spaCy manquant : {model_name}...")
         try:
-            # Cette méthode est supportée par Streamlit pour les installations temporaires
-            spacy.cli.download(model_name)
+            # Télécharge le modèle si la librairie est installée
+            spacy_download(model_name)
             print(f"Modèle {model_name} téléchargé avec succès.")
         except Exception as e:
-            st.error(f"Erreur critique lors du téléchargement de {model_name}: {e}")
-
-# --- FIN DE LA LOGIQUE DE GESTION DES MODÈLES ---
+            # Affiche une erreur si le téléchargement échoue (ex: problème de connexion)
+            st.error(f"Erreur lors du téléchargement de {model_name}: {e}")
+# --- FIN DU BLOC ROBUSTE ---
 
 
 def detect_s1(block, nlp):
     """Signifiant maître (S1) par fréquence + lemmatisation."""
-    # ... (le reste de la fonction est inchangé)
     tokens = [t.lemma_.lower() for t in nlp(block) if t.is_alpha and not t.is_stop]
     freq = nltk.FreqDist(tokens)
     return freq.most_common(1)[0][0] if freq else "?"
 
 def classify_regime(s1_history, polarity):
     """Topologie : centripète / centré / centrifuge."""
-    # ... (le reste de la fonction est inchangé)
     if len(s1_history) < 2: return "?"
     changes = len(set(s1_history[-3:]))
     if changes == 1 and polarity > 0.1: return "centripète"
@@ -51,7 +51,7 @@ def load_spacy_model(model_name):
         # Tente de charger le modèle après la vérification/téléchargement initial
         return spacy.load(model_name)
     except OSError:
-        st.error(f"Le modèle spaCy '{model_name}' n'a pas pu être chargé.")
+        st.error(f"Le modèle spaCy '{model_name}' n'a pas pu être chargé. Assurez-vous qu'il est installé.")
         return None
 
 
@@ -65,7 +65,7 @@ def analyze_discourse(text, lang='fr', block_size=5):
     except: pass
 
     # Utilisation du modèle chargé via la fonction de cache
-    selected_model_name = LANG_MODELS.get(lang[:2], DEFAULT_MODEL)
+    selected_model_name = LANG_MODELS.get(lang[:2], 'fr_core_news_sm')
     nlp = load_spacy_model(selected_model_name)
     
     # Gérer le cas où le modèle n'a pas pu être chargé
@@ -73,7 +73,6 @@ def analyze_discourse(text, lang='fr', block_size=5):
         return [], [], []
 
     sentences = sent_tokenize(text)
-    # ... (le reste de la fonction est inchangé)
     blocks = [' '.join(sentences[i:i+block_size]) for i in range(0, len(sentences), block_size)]
 
     s1_history, regimes, key_moments = [], [], []
