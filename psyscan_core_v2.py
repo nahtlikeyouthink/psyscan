@@ -6,11 +6,16 @@ import spacy
 from langdetect import detect
 import streamlit as st
 
-# --- NLTK ---
-nltk.download('punkt', quiet=True)
-nltk.download('stopwords', quiet=True)
+# --- NLTK : Téléchargement forcé des ressources ---
+try:
+    nltk.download('punkt', quiet=True)
+    nltk.download('punkt_tab', quiet=True)  # Crucial pour NLTK 3.9+
+    nltk.download('stopwords', quiet=True)
+except Exception as e:
+    st.error(f"Erreur NLTK : {e}")
+    st.stop()
 
-# --- MODÈLES ---
+# --- MODÈLES SPAcy ---
 LANG_MODELS = {
     'fr': 'fr_core_news_sm',
     'en': 'en_core_web_sm'
@@ -21,7 +26,7 @@ def load_spacy_model(model_name):
     try:
         return spacy.load(model_name)
     except Exception as e:
-        st.error(f"Impossible de charger le modèle spaCy `{model_name}` : {e}")
+        st.error(f"Modèle spaCy `{model_name}` introuvable : {e}")
         st.stop()
 
 def detect_s1(block, nlp):
@@ -39,21 +44,29 @@ def classify_regime(s1_history, polarity):
         return "centrifuge"
     return "centré (oscillant)"
 
-def analyze_discourse(text, lang='fr', block_size=5):
-    # Langue
+def analyze_discourse(text, lang='Français', block_size=5):
+    # Map lang to code
+    lang_code = 'fr' if lang == 'Français' else 'en'
+
+    # Détection langue
     try:
         detected = detect(text[:500])
-        if detected[:2] != lang.lower()[:2]:
-            st.warning(f"Langue détectée : **{detected}** ≠ **{lang}**")
+        if detected != lang_code:
+            st.warning(f"Langue détectée : **{detected}** ≠ **{lang_code}**")
     except:
         pass
 
-    # Modèle
-    model_name = LANG_MODELS.get(lang.lower()[:2], LANG_MODELS['fr'])
+    # Modèle spaCy
+    model_name = LANG_MODELS.get(lang_code, LANG_MODELS['fr'])
     nlp = load_spacy_model(model_name)
 
-    # Découpage
-    sentences = sent_tokenize(text, language=lang.lower()[:2])
+    # Découpage phrases (avec fallback)
+    try:
+        sentences = sent_tokenize(text, language=lang_code)
+    except LookupError:
+        st.warning("Fallback NLTK : utilisation du tokenizer par défaut (anglais).")
+        sentences = sent_tokenize(text)
+
     blocks = [' '.join(sentences[i:i + block_size]) for i in range(0, len(sentences), block_size)]
 
     s1_history, regimes, key_moments = [], [], []
