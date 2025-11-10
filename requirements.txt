@@ -6,4 +6,5 @@ nltk
 textblob
 langdetect
 matplotlib
-numpy>=1.26.0
+# FORCER UNE VERSION STABLE DE NUMPY (CRUCIAL)
+numpy==1.26.4
