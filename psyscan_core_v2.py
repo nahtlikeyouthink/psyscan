@@ -7,29 +7,24 @@ import streamlit as st
 from spacy.cli import download as spacy_download
 from pathlib import Path
 
-# --- CONFIGURATION ---
-# Dossier temporaire inscriptible sur Streamlit Cloud
+# --- CONFIG ---
 TMP_MODELS_DIR = Path("/tmp/spacy_models")
 TMP_MODELS_DIR.mkdir(exist_ok=True)
 
-# Modèles spaCy + chemins locaux
 LANG_MODELS = {
     'fr': ('fr_core_news_sm', TMP_MODELS_DIR / "fr_core_news_sm"),
     'en': ('en_core_web_sm', TMP_MODELS_DIR / "en_core_web_sm")
 }
 
-# --- BLOC DE TÉLÉCHARGEMENT DES MODÈLES AU DÉMARRAGE ---
-for lang_code, (model_name, model_path) in LANG_MODELS.items():
-    if not model_path.exists():
-        with st.spinner(f"Téléchargement du modèle spaCy `{model_name}`..."):
+for lang_code, (remote_name, local_path) in LANG_MODELS.items():
+    if not local_path.exists():
+        with st.spinner(f"Téléchargement du modèle `{remote_name}`..."):
             try:
-                spacy_download(model_name, False, "--target", str(TMP_MODELS_DIR))
-                st.success(f"Modèle `{model_name}` prêt !")
+                spacy_download(remote_name, False, "--target G", str(TMP_MODELS_DIR))
+                st.success(f"Modèle `{remote_name}` téléchargé dans `/tmp`")
             except Exception as e:
-                st.error(f"Échec téléchargement `{model_name}`: {e}")
+                st.error(f"Échec téléchargement `{remote_name}`: {e}")
                 raise
-    else:
-        st.info(f"Modèle `{model_name}` déjà présent.")
 
 # --- FONCTIONS ---
 def detect_s1(block, nlp):
