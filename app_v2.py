@@ -1,4 +1,8 @@
 # psyscan.py
+# PSYSCAN v2.1 – Scanner méta-psychique du discours public
+# Licence : AGPL-3.0 + ETHICAL_GUIDELINES.md
+# Auteur : NAHT LIKE YOU THINK – DOI : https://doi.org/10.5281/zenodo.17504541
+
 import streamlit as st
 from psyscan_core_v2 import analyze_discourse
 import matplotlib.pyplot as plt
