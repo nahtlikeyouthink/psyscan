@@ -17,7 +17,6 @@ st.caption("*Analyse en temps réel : évolution symbolique, topologie, points d
 st.write("")
 
         # === PRÉSENTATION PHILOSOPHIQUE (EN HAUT) ===
-        st.markdown("---")
         st.header("Fondements Épistémologiques")
         st.markdown("""
         **PSYSCAN révèle la structure du pouvoir — pas les individus.**  
