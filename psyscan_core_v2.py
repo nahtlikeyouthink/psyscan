@@ -1,4 +1,8 @@
 # psyscan_core_v2.py
+# PSYSCAN v2.1 — Moteur d’analyse lacanienne
+# Licence : AGPL-3.0
+# Auteur : NAHT LIKE YOU THINK
+
 import nltk
 from nltk.tokenize import sent_tokenize
 from textblob import TextBlob
@@ -23,6 +27,20 @@ NLTK_LANGUAGES = {
     'en': 'english'
 }
 
+# --- Liste complète de stop words français (fallback sans spaCy) ---
+STOP_WORDS_FR = {
+    'le', 'la', 'les', 'l', 'de', 'du', 'des', 'd', 'un', 'une', 'et', 'ou', 'à', 'au', 'aux',
+    'en', 'dans', 'sur', 'sous', 'pour', 'par', 'avec', 'sans', 'mais', 'ou', 'ni', 'car',
+    'donc', 'or', 'que', 'qui', 'quoi', 'dont', 'où', 'quand', 'comment', 'si', 'est', 'sont',
+    'a', 'avoir', 'être', 'avait', 'était', 'serait', 'fait', 'faire', 'tout', 'tous', 'toutes',
+    'ce', 'cet', 'cette', 'ces', 'mon', 'ton', 'son', 'notre', 'votre', 'leur', 'je', 'tu',
+    'il', 'elle', 'nous', 'vous', 'ils', 'elles', 'me', 'te', 'se', 'ne', 'pas', 'plus', 'moins',
+    'y', 'en', 'ça', 'cela', 'celui', 'celle', 'ceux', 'celles', 'leur', 'leurs', 'moi', 'toi',
+    'lui', 'eux', 'elle', 'même', 'aussi', 'autre', 'autres', 'aucun', 'aucune', 'aucuns', 'aucunes',
+    'tous', 'toutes', 'tout', 'toute', 'toutes', 'tous', 'chaque', 'plusieurs', 'quelques', 'certains',
+    'certaines', 'plus', 'moins', 'trop', 'peu', 'très', 'assez', 'tel', 'telle', 'tels', 'telles'
+}
+
 # --- spaCy ---
 LANG_MODELS = {'fr': 'fr_core_news_sm', 'en': 'en_core_web_sm'}
 
@@ -33,28 +51,45 @@ def load_spacy_model(lang_code):
         return spacy.load(model_name)
     except Exception as e:
         st.error(f"Modèle spaCy `{model_name}` introuvable.")
-        st.info("Fallback NLTK activé (S1 instable en français).")
+        st.info("Fallback NLTK activé (S1 moins précis en français).")
         return None
 
 def detect_s1(block, nlp):
+    """
+    Détecte le Signifiant-Maître (S1) dans un bloc.
+    Filtre les stop words et mots courts.
+    """
     if nlp is None:
-        words = [w.lower() for w in block.split() if w.isalpha()]
-        words = [w for w in words if w not in ['le', 'la', 'de', 'et', 'pour', 'dans', 'un', 'une']]
+        # Fallback sans spaCy
+        words = [w.lower() for w in block.split() if w.isalpha() and len(w) > 2]
+        words = [w for w in words if w not in STOP_WORDS_FR]
         freq = nltk.FreqDist(words)
         return freq.most_common(1)[0][0] if freq else "?"
     else:
-        tokens = [t.lemma_.lower() for t in nlp(block) if t.is_alpha and not t.is_stop]
+        # Avec spaCy : lemmatisation + stop words + longueur
+        tokens = [
+            t.lemma_.lower() for t in nlp(block)
+            if t.is_alpha and not t.is_stop and len(t.lemma_) > 2
+        ]
         freq = nltk.FreqDist(tokens)
         return freq.most_common(1)[0][0] if freq else "?"
 
 def classify_regime(s1_history, polarity):
-    if len(s1_history) < 2: return "?"
+    """Classifie le régime discursif : centripète, centrifuge, oscillant"""
+    if len(s1_history) < 2:
+        return "?"
     changes = len(set(s1_history[-3:]))
-    if changes == 1 and polarity > 0.1: return "centripète"
-    if changes >= 3 or polarity < -0.1: return "centrifuge"
+    if changes == 1 and polarity > 0.1:
+        return "centripète"
+    if changes >= 3 or polarity < -0.1:
+        return "centrifuge"
     return "centré (oscillant)"
 
 def analyze_discourse(text, lang='Français', block_size=5):
+    """
+    Analyse complète du discours.
+    Retourne : s1_history, regimes, key_moments, psi_brut, psi_adaptatif, confiance
+    """
     lang_code = 'fr' if lang.lower().startswith('fr') else 'en'
     nltk_lang = NLTK_LANGUAGES.get(lang_code, 'english')
 
@@ -82,6 +117,7 @@ def analyze_discourse(text, lang='Français', block_size=5):
         st.warning("Erreur NLTK → fallback anglais.")
         sentences = sent_tokenize(text, language='english')
 
+    # Découpage en blocs
     blocks = [' '.join(sentences[i:i + block_size]) for i in range(0, len(sentences), block_size)]
     s1_history, regimes, key_moments = [], [], []
 
@@ -94,12 +130,14 @@ def analyze_discourse(text, lang='Français', block_size=5):
 
         if i > 1 and regime != regimes[i-1]:
             key_moments.append({
-                "id": i + 1, "s1": s1, "regime": regime,
+                "id": i + 1,
+                "s1": s1,
+                "regime": regime,
                 "quote": block[:150] + ("..." if len(block) > 150 else ""),
                 "polarity": round(polarity, 2)
             })
 
-    # === CALCULS FINAUX (APRÈS LA BOUCLE !) ===
+    # === CALCULS FINAUX ===
     s1_freq = Counter(s1_history)
     total = len(s1_history)
     psi_brut = max(s1_freq.values()) / total if total > 0 else 0
