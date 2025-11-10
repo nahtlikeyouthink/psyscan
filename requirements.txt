@@ -1,5 +1,7 @@
+# requirements.txt
 streamlit
-spacy==3.6.0  # Recommandé pour la stabilité
+spacy==3.6.0
+thinc==8.1.12
 nltk
 textblob
 langdetect
