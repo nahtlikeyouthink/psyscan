@@ -19,6 +19,7 @@ st.caption("*Analyse lacanienne en temps réel : évolution symbolique, topologi
 col1, _ = st.columns([1, 3])
 with col1:
     lang = st.selectbox("Langue du discours", ["Français", "English"], help="Choix explicite pour stabilité du S1")
+st.write("")
 
 # === ZONE 2 : DISCOURS + PARAMÈTRES ===
 text = st.text_area(
@@ -35,7 +36,6 @@ if st.button("Lancer le sismographe", type="primary"):
     else:
         with st.spinner("Analyse en cours..."):
             try:
-                # CORRIGÉ : 6 valeurs attendues
                 s1_history, regimes, key_moments, psi_brut, psi_adaptatif, confiance = analyze_discourse(text, lang, block_size)
             except Exception as e:
                 st.error(f"Erreur lors de l'analyse : {str(e)}")
