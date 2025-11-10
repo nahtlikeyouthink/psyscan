@@ -63,6 +63,25 @@ if st.button("Lancer le sismographe", type="primary"):
         Un score élevé indique une **dépendance critique** à un seul signifiant — un point de fragilité ou de totalisation symbolique.
         """)
 
+        # === ÉCHELLE DE RÉFÉRENCE Ψ ===
+        st.subheader("Échelle de référence — Interprétation du S1")
+
+        col_ref1, col_ref2, col_ref3 = st.columns(3)
+
+        with col_ref1:
+        st.metric("**Ψₐ = 0.1–0.3**", "Dispersé", help="S1 change souvent → lien social faible")
+        st.caption("Ex : débat chaotique")
+
+        with col_ref2:
+        st.metric("**Ψₐ = 0.4–0.7**", "Équilibré", help="S1 stable mais souple → pouvoir négocié")
+        st.caption("Ex : discours politique classique")
+
+        with col_ref3:
+        st.metric("**Ψₐ = 0.8–0.95**", "Dominant", help="S1 hégémonique → risque de totalisation")
+        st.caption("Ex : propagande, culte")
+
+        st.markdown("---")
+
         with col_psi:
             st.metric(
                 label="**Ψₐ**",
