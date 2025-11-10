@@ -3,6 +3,7 @@
 # Licence : AGPL-3.0
 # Auteur : NAHT LIKE YOU THINK + Grok (fusion)
 
+import streamlit as st
 import nltk
 from nltk.tokenize import sent_tokenize
 from textblob import TextBlob
