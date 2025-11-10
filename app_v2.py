@@ -1,3 +1,4 @@
+# app_v2.py
 import streamlit as st
 from psyscan_core_v2 import analyze_discourse
 import matplotlib.pyplot as plt
@@ -27,9 +28,13 @@ if st.button("Lancer le sismographe", type="primary"):
         st.error("Veuillez coller un discours.")
     else:
         with st.spinner("Analyse en cours..."):
-            s1_history, regimes, key_moments = analyze_discourse(text, lang, block_size)
+            try:
+                s1_history, regimes, key_moments = analyze_discourse(text, lang, block_size)
+            except Exception as e:
+                st.error(f"Erreur lors de l'analyse : {str(e)}")
+                st.stop()
 
-        # === SISMO VISUEL (ANIMÉ SIMULÉ) ===
+        # === SISMO VISUEL ===
         st.subheader("Sismographe Symbolique")
         fig, ax = plt.subplots(figsize=(12, 5))
         x = list(range(len(regimes)))
@@ -42,29 +47,33 @@ if st.button("Lancer le sismographe", type="primary"):
         ax.set_title("Évolution topologique du discours")
         ax.grid(True, alpha=0.3)
         st.pyplot(fig)
+        plt.close(fig)
 
         # === EXPORT PNG ===
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
-        st.download_button("Télécharger le sismographe", buf.getvalue(), "sismographe.png", "image/png")
+        fig.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+        buf.seek(0)
+        st.download_button("Télécharger le sismographe", buf, "sismographe.png", "image/png")
 
-        # === RÉTROSPECTIVE : POINTS CLÉS ===
+        # === RÉTROSPECTIVE ===
         st.subheader("Points clés du tremblement symbolique")
-        for m in key_moments:
-            with st.expander(f"Bloc {m['id']} — **{m['s1']}** → **{m['regime']}** (Polarité: {m['polarity']})"):
-                st.write(m['quote'])
+        if key_moments:
+            for m in key_moments:
+                with st.expander(f"Bloc {m['id']} — **{m['s1']}** → **{m['regime']}** (Polarité: {m['polarity']})"):
+                    st.write(m['quote'])
+        else:
+            st.info("Aucun point de rupture détecté.")
 
-        # === ANALYSE GÉNÉRALE DIDACTIQUE ===
+        # === ANALYSE GÉNÉRALE ===
         st.subheader("Analyse globale")
-        s1_global = max(set(s1_history), key=s1_history.count)
-        regime_final = regimes[-1]
-        st.write(f"""
-        - **Signifiant maître (S1)** : **{s1_global}** → ancre le récit symbolique.  
-        - **Régime final** : **{regime_final}** → structure dominante à la fin.  
-        - **Évolution interne** : Le discours passe par **{len(key_moments)} ruptures majeures**, révélant une dynamique de **contrôle → oscillation → {regime_final}**.  
-        - **Interprétation** : Le pouvoir se configure autour de **{s1_global}** comme acte symbolique. Les ruptures marquent les moments où le contrat social est renégocié.
-        """)
-
-        # === LIEN PÉDAGOGIQUE ===
+        if s1_history:
+            s1_global = max(set(s1_history), key=s1_history.count)
+            regime_final = regimes[-1]
+            st.write(f"""
+            - **Signifiant maître (S1)** : **{s1_global}** → ancre le récit symbolique.
+            - **Régime final** : **{regime_final}** → structure dominante.
+            - **Ruptures** : **{len(key_moments)}** moments de bascule.
+            - **Interprétation** : Le discours organise le pouvoir autour de **{s1_global}**, avec des oscillations révélant les points de renégociation du lien social.
+            """)
         st.markdown("---")
-        st.markdown("**PSYSCAN v2.1** — Outil d’analyse lacanienne du discours | [GitHub](https://github.com/nahtlikeyouthink/psyscan/tree/v2.1-sismographe) | Licence éthique héritée")
+        st.markdown("**PSYSCAN v2.1** — Outil d’analyse lacanienne | [GitHub](https://github.com/nahtlikeyouthink/psyscan/tree/v2.1-sismographe) | Éthique & open-source")
