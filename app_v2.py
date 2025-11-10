@@ -83,11 +83,6 @@ if st.button("Lancer le sismographe", type="primary"):
                 value=f"{psi_adaptatif:.3f}",
                 help="Force du S1 (normalisé selon granularité)"
             )
-
-        st.markdown("""
-        L'**Indice $\Psi$ (Psi)** quantifie la **centralité** du S1 dans le discours.  
-        Un score élevé indique une **dépendance critique** à un seul signifiant — un point de fragilité ou de totalisation symbolique.
-        """)
         
         # Jauge visuelle (Ψₐ)
         st.progress(psi_adaptatif)
