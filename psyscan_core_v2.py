@@ -61,12 +61,30 @@ def analyze_discourse(text, lang='Français', block_size=5):
     except:
         pass
 
-    nlp = load_spacy_model(lang_code)
+# Mapping des codes langue vers NLTK
+NLTK_LANGUAGES = {
+    'fr': 'french',
+    'en': 'english'
+}
+
+nltk_lang = NLTK_LANGUAGES.get(lang_code, 'english')
+
+try:
+    sentences = sent_tokenize(text, language=nltk_lang)
+except LookupError:
+
+    nltk.download('punkt_tab', quiet=True)
     try:
-        sentences = sent_tokenize(text, language=lang_code)
+        sentences = sent_tokenize(text, language=nltk_lang)
+    except:
+        st.warning(f"Tokenizer NLTK `{nltk_lang}` échoué → fallback anglais.")
+        sentences = sent_tokenize(text, language='english')
+except Exception as e:
+    st.warning(f"Erreur inattendue avec NLTK : {e} → fallback anglais.")
+    sentences = sent_tokenize(text, language='english')
     except:
         st.warning("Tokenizer NLTK échoué → fallback anglais.")
-        sentences = sent_tokenize(text, languageokr='english')
+        sentences = sent_tokenize(text, language='english')
 
     blocks = [' '.join(sentences[i:i + block_size]) for i in range(0, len(sentences), block_size)]
     s1_history, regimes, key_moments = [], [], [],
