@@ -6,8 +6,24 @@ import io
 
 # === CONFIG ===
 st.set_page_config(page_title="PSYSCAN v2.1", layout="wide")
+
+# === TITRE ===
 st.title("PSYSCAN v2.1 — Sismographe du Discours")
 st.caption("*Analyse lacanienne en temps réel : évolution symbolique, topologie, points de rupture.*")
+
+# =========================================================
+# AJOUT DE LA PRÉSENTATION PHILOSOPHIQUE
+# =========================================================
+st.header("Fondements Épistémologiques")
+st.markdown("""
+**PSYSCAN révèle la structure du pouvoir — pas les individus.**  
+Cet outil open-source part d'une prémisse psychanalytique et philosophique : le discours politique est d'abord **pulsionnel** et **structurant**. Le **Signifiant-Maître (S1)** n'est pas un choix conscient, mais la *clé de voûte* autour de laquelle le pouvoir s'organise. PSYSCAN agit comme un **sismographe du discours**, mesurant les **tremblements structurels** pour révéler la nature et la stabilité du pouvoir.
+""")
+st.subheader("Mesurer l'Invisible (L'Indice Ψ)")
+st.markdown("""
+Notre outil quantifie la force de ce S1 en calculant l'**Indice $\Psi$ (Psi)**, une mesure synthétique de sa **centralité** et de sa **résistance au bruit**. Un score élevé signale une **dépendance critique** de la structure du pouvoir à un seul mot-clé.
+""")
+st.markdown("---")  # Séparation visuelle
 
 # === ZONE 1 : LANGUE ===
 col1, _ = st.columns([1, 3])
@@ -75,5 +91,15 @@ if st.button("Lancer le sismographe", type="primary"):
             - **Ruptures** : **{len(key_moments)}** moments de bascule.
             - **Interprétation** : Le discours organise le pouvoir autour de **{s1_global}**, avec des oscillations révélant les points de renégociation du lien social.
             """)
+        
+        # === LIEN PÉDAGOGIQUE ===
         st.markdown("---")
         st.markdown("**PSYSCAN v2.1** — Outil d’analyse lacanienne | [GitHub](https://github.com/nahtlikeyouthink/psyscan/tree/v2.1-sismographe) | Éthique & open-source")
+
+# =========================================================
+# AJOUT MINIMALISTE DU LIEN EN BAS
+# =========================================================
+st.markdown("---")
+st.markdown("<div style='text-align: center; color: #666; font-size: 0.9em;'>"
+            "[Naht Like You Think](https://linktr.ee/iamnaht) — pensée critique & outils libres"
+            "</div>", unsafe_allow_html=True)
