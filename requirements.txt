@@ -1,6 +1,3 @@
-# requirements.txt
-# REMOVE: fr-core-news-sm==3.6.0 !
-
 numpy==1.24.4  
 streamlit
 spacy==3.6.0  
