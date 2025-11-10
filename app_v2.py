@@ -13,7 +13,17 @@ st.set_page_config(page_title="PSYSCAN v2.1", layout="wide")
 
 # === TITRE ===
 st.title("PSYSCAN v2.1 — Sismographe du Discours")
-st.caption("*Analyse lacanienne en temps réel : évolution symbolique, topologie, points de rupture.*")
+st.caption("*Analyse en temps réel : évolution symbolique, topologie, points de rupture.*")
+st.write("")
+
+        # === PRÉSENTATION PHILOSOPHIQUE (EN HAUT) ===
+        st.markdown("---")
+        st.header("Fondements Épistémologiques")
+        st.markdown("""
+        **PSYSCAN révèle la structure du pouvoir — pas les individus.**  
+        Cet outil open-source part d'une prémisse psychanalytique et philosophique : le discours politique est d'abord **pulsionnel** et **structurant**. Le **Signifiant-Maître (S1)** n'est pas un choix conscient, mais la *clé de voûte* autour de laquelle le pouvoir s'organise. PSYSCAN agit comme un **sismographe du discours**, mesurant les **tremblements structurels** pour révéler la nature et la stabilité du pouvoir.
+        """)
+        st.markdown("---")
 
 # === ZONE 1 : LANGUE ===
 col1, _ = st.columns([1, 3])
@@ -27,7 +37,11 @@ text = st.text_area(
     height=300,
     placeholder="Ex. : Appel du 18 juin 1940..."
 )
+
+st.write("")
+
 block_size = st.slider("Taille des blocs (phrases)", 1, 15, 5, help="Plus petit = plus sensible")
+st.write("")
 
 # === LANCEMENT ===
 if st.button("Lancer le sismographe", type="primary"):
@@ -125,12 +139,6 @@ if st.button("Lancer le sismographe", type="primary"):
             """)
 
         # === PRÉSENTATION PHILOSOPHIQUE (EN BAS) ===
-        st.markdown("---")
-        st.header("Fondements Épistémologiques")
-        st.markdown("""
-        **PSYSCAN révèle la structure du pouvoir — pas les individus.**  
-        Cet outil open-source part d'une prémisse psychanalytique et philosophique : le discours politique est d'abord **pulsionnel** et **structurant**. Le **Signifiant-Maître (S1)** n'est pas un choix conscient, mais la *clé de voûte* autour de laquelle le pouvoir s'organise. PSYSCAN agit comme un **sismographe du discours**, mesurant les **tremblements structurels** pour révéler la nature et la stabilité du pouvoir.
-        """)
         st.subheader("Mesurer l'Invisible (L'Indice Ψ)")
         st.markdown("""
         L'**Indice $\Psi$ (Psi)** quantifie la **centralité** du S1 dans le discours.  
