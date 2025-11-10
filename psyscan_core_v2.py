@@ -4,27 +4,12 @@ from textblob import TextBlob
 import spacy
 from langdetect import detect
 import streamlit as st
-from spacy.cli import download as spacy_download
-from pathlib import Path
 
 # --- CONFIG ---
-TMP_MODELS_DIR = Path("/tmp/spacy_models")
-TMP_MODELS_DIR.mkdir(exist_ok=True)
-
 LANG_MODELS = {
-    'fr': ('fr_core_news_sm', TMP_MODELS_DIR / "fr_core_news_sm"),
-    'en': ('en_core_web_sm', TMP_MODELS_DIR / "en_core_web_sm")
+    'fr': 'fr_core_news_sm',
+    'en': 'en_core_web_sm'
 }
-
-for lang_code, (remote_name, local_path) in LANG_MODELS.items():
-    if not local_path.exists():
-        with st.spinner(f"Téléchargement du modèle `{remote_name}`..."):
-            try:
-                spacy_download(remote_name, False, "--target G", str(TMP_MODELS_DIR))
-                st.success(f"Modèle `{remote_name}` téléchargé dans `/tmp`")
-            except Exception as e:
-                st.error(f"Échec téléchargement `{remote_name}`: {e}")
-                raise
 
 # --- FONCTIONS ---
 def detect_s1(block, nlp):
@@ -43,9 +28,13 @@ def classify_regime(s1_history, polarity):
     return "centré (oscillant)"
 
 @st.cache_resource
-def load_spacy_model(model_path):
-    """Charge un modèle depuis un chemin local (dans /tmp)."""
-    return spacy.load(model_path)
+def load_spacy_model(model_name):
+    """Charge un modèle pré-installé via pip."""
+    try:
+        return spacy.load(model_name)
+    except OSError as e:
+        st.error(f"Modèle `{model_name}` non trouvé. Assurez-vous qu'il est dans `requirements.txt`.")
+        raise e
 
 def analyze_discourse(text, lang='fr', block_size=5):
     # Détection langue
@@ -57,15 +46,15 @@ def analyze_discourse(text, lang='fr', block_size=5):
         pass
 
     # Sélection du modèle
-    model_name, model_path = LANG_MODELS.get(lang[:2], LANG_MODELS['fr'])
-    if not model_path.exists():
-        st.error(f"Modèle {model_name} non disponible.")
-        return [], [], []
+    model_name = LANG_MODELS.get(lang[:2], LANG_MODELS['fr'])
+    
+    # Chargement du modèle
+    nlp = load_spacy_model(model_name)
 
-    nlp = load_spacy_model(model_path)
-
-    sentences = sent_tokenize(text)
+    # Tokenisation en phrases
+    sentences = sent_tokenize(text, language=lang[:2])
     blocks = [' '.join(sentences[i:i+block_size]) for i in range(0, len(sentences), block_size)]
+
     s1_history, regimes, key_moments = [], [], []
 
     for i, block in enumerate(blocks):
@@ -78,7 +67,36 @@ def analyze_discourse(text, lang='fr', block_size=5):
         if i > 1 and regime != regimes[i-1]:
             key_moments.append({
                 "id": i+1, "s1": s1, "regime": regime,
-                "quote": block[:150] + "...", "polarity": round(polarity, 2)
+                "quote": block[:150] + ("..." if len(block) > 150 else ""),
+                "polarity": round(polarity, 2)
             })
 
     return s1_history, regimes, key_moments
+
+# --- INTERFACE STREAMLIT ---
+st.title("Analyse Discursive - S1 & Régime")
+
+lang = st.selectbox("Langue", ["fr", "en"], format_func=lambda x: "Français" if x == "fr" else "English")
+text = st.text_area("Texte à analyser", height=200, placeholder="Collez votre texte ici...")
+
+if st.button("Analyser"):
+    if not text.strip():
+        st.error("Veuillez entrer un texte.")
+    else:
+        with st.spinner("Analyse en cours..."):
+            s1_history, regimes, key_moments = analyze_discourse(text, lang=lang)
+
+        st.subheader("Évolution du S1")
+        st.line_chart([i for i in range(len(s1_history))], use_container_width=True)
+        st.write("S1 par bloc :", s1_history)
+
+        st.subheader("Régime discursif")
+        st.write(regimes)
+
+        if key_moments:
+            st.subheader("Moments clés de bascule")
+            for m in key_moments:
+                st.markdown(f"**Bloc {m['id']}** → `{m['regime']}` (S1: `{m['s1']}`, polarité: {m['polarity']})")
+                st.caption(m['quote'])
+        else:
+            st.info("Aucun changement de régime détecté.")
