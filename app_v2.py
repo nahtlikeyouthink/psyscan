@@ -54,8 +54,8 @@ if st.button("Lancer le sismographe", type="primary"):
                 st.error(f"Erreur lors de l'analyse : {str(e)}")
                 st.stop()
 
-        # === INDICES PRO : Ψₐ + CONFIANCE ===
-        st.subheader("Indices PRO — Analyse Avancée")
+        # === INDICES : Ψₐ + CONFIANCE ===
+        st.subheader("Indices — Analyse Avancée")
         col_psi, col_conf, col_help = st.columns([1, 1, 3])
 
         with col_psi:
@@ -64,25 +64,6 @@ if st.button("Lancer le sismographe", type="primary"):
                 value=f"{psi_adaptatif:.3f}",
                 help="Force du S1 (normalisé selon granularité)"
             )
-
-        with col_conf:
-            st.metric(
-                label="**Confiance C**",
-                value=f"{confiance:.1%}",
-                help="Fiabilité de l'analyse (max = équilibre)"
-            )
-
-        with col_help:
-            st.caption(f"Granularité: {block_size} phrases | Ψ brut: {psi_brut:.3f}")
-            st.caption("**C élevé** → analyse équilibrée | **C bas** → extrême")
-
-        # Interprétation automatique
-        if confiance > 0.85:
-            st.success("Analyse très fiable — équilibre optimal")
-        elif confiance > 0.6:
-            st.info("Analyse fiable — bon équilibre")
-        else:
-            st.warning("Analyse à interpréter avec prudence — granularité extrême")
 
         # Jauge visuelle (Ψₐ)
         st.progress(psi_adaptatif)
