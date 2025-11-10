@@ -3,5 +3,5 @@ spacy[lookups]==3.6.1
 nltk
 textblob
 langdetect
-- numpy==1.24.4
-+ numpy>=1.26.0
+matplotlib
+numpy>=1.26.0
