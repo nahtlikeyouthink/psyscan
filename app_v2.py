@@ -125,10 +125,9 @@ if st.button("Lancer le sismographe", type="primary"):
 
         # === LIEN PÉDAGOGIQUE ===
         st.markdown("---")
-        st.markdown("**PSYSCAN v2.1** — Outil d’analyse | [GitHub](https://github.com/nahtlikeyouthink/psyscan/tree/v2.1-sismographe) | Sismographe du Discours")
+        st.markdown("**PSYSCAN v2.1** — Outil d’analyse | [GitHub](https//github.com/nahtlikeyouthink/psyscan/tree/v2.1-sismographe) | Sismographe du Discours")
 
         # === LIEN NAHT LIKE YOU THINK (CLIQUABLE) ===
-        st.markdown("---")
         st.markdown(
             """
             <div style="text-align: center; margin: 20px 0; font-size: 0.9em; color: #666;">
