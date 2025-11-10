@@ -35,47 +35,53 @@ if st.button("Lancer le sismographe", type="primary"):
     else:
         with st.spinner("Analyse en cours..."):
             try:
-                s1_history, regimes, key_moments, psi = analyze_discourse(text, lang, block_size)
+                # CORRIGÉ : 6 valeurs attendues
+                s1_history, regimes, key_moments, psi_brut, psi_adaptatif, confiance = analyze_discourse(text, lang, block_size)
             except Exception as e:
                 st.error(f"Erreur lors de l'analyse : {str(e)}")
                 st.stop()
 
-        # === INDICE Ψ ===
-        st.subheader("Indice Ψ — Force du Signifiant-Maître")
-        col_psi, col_help = st.columns([1, 4])
+        # === INDICES PRO : Ψₐ + CONFIANCE ===
+        st.subheader("Indices PRO — Analyse Avancée")
+        col_psi, col_conf, col_help = st.columns([1, 1, 3])
+
         with col_psi:
             st.metric(
-        label="**Indice Ψ**",
-        value=f"{psi:.3f}",
-        help="Centralité du S1 (0 = dispersé, 1 = dominant)"
-        )
+                label="**Ψₐ**",
+                value=f"{psi_adaptatif:.3f}",
+                help="Force du S1 (normalisé selon granularité)"
+            )
+
+        with col_conf:
+            st.metric(
+                label="**Confiance C**",
+                value=f"{confiance:.1%}",
+                help="Fiabilité de l'analyse (max = équilibre)"
+            )
+
         with col_help:
-            st.caption("Plus Ψ est élevé, plus le discours dépend d’un seul signifiant. Ex : 0.85 = S1 ultra-dominant.")
+            st.caption(f"Granularité: {block_size} phrases | Ψ brut: {psi_brut:.3f}")
+            st.caption("**C élevé** → analyse équilibrée | **C bas** → extrême")
+
+        # Interprétation automatique
+        if confiance > 0.85:
+            st.success("Analyse très fiable — équilibre optimal")
+        elif confiance > 0.6:
+            st.info("Analyse fiable — bon équilibre")
+        else:
+            st.warning("Analyse à interpréter avec prudence — granularité extrême")
+
+        # Jauge visuelle (Ψₐ)
+        st.progress(psi_adaptatif)
+        if psi_adaptatif > 0.7:
+            st.warning("**Ψₐ élevé** → S1 dominant")
+        elif psi_adaptatif < 0.3:
+            st.info("**Ψₐ bas** → Discours dispersé")
+        else:
+            st.success("**Ψₐ équilibré** → Structure souple")
 
         st.markdown("---")
 
-        # === INDICE Ψ ADAPTATIF ===
-        st.subheader("Indice Ψₐ — Force du Signifiant-Maître (Adaptatif)")
-        col_psi, col_help = st.columns([1, 4])
-        with col_psi:
-            st.metric(
-        label="**Indice Ψₐ**",
-        value=f"{psi_adaptatif:.3f}",
-        help="Ψ normalisé selon la granularité (stable)"
-        )
-            st.caption(f"Ψ brut: {psi_brut:.3f} | Granularité: {block_size}")
-        with col_help:
-            st.caption("Ψₐ corrige le biais des gros blocs → mesure réelle de la force du S1.")
-
-                # === JAUGE VISUELLE ===
-        st.progress(psi)
-        if psi > 0.7:
-            st.warning("**Ψ élevé** → Risque de totalisation symbolique (S1 hégémonique)")
-        elif psi < 0.3:
-            st.info("**Ψ bas** → Discours dispersé, peu d’ancrage symbolique")
-        else:
-            st.success("**Ψ équilibré** → Discours structuré mais souple")
-            
         # === SISMO VISUEL ===
         st.subheader("Sismographe Symbolique")
         fig, ax = plt.subplots(figsize=(12, 5))
@@ -118,9 +124,7 @@ if st.button("Lancer le sismographe", type="primary"):
             - **Interprétation** : Le discours organise le pouvoir autour de **{s1_global}**, avec des oscillations révélant les points de renégociation du lien social.
             """)
 
-        # =========================================================
-        # PRÉSENTATION
-        # =========================================================
+        # === PRÉSENTATION PHILOSOPHIQUE (EN BAS) ===
         st.markdown("---")
         st.header("Fondements Épistémologiques")
         st.markdown("""
@@ -132,19 +136,20 @@ if st.button("Lancer le sismographe", type="primary"):
         L'**Indice $\Psi$ (Psi)** quantifie la **centralité** du S1 dans le discours.  
         Un score élevé indique une **dépendance critique** à un seul signifiant — un point de fragilité ou de totalisation symbolique.
         """)
+
         # === LIEN PÉDAGOGIQUE ===
         st.markdown("---")
         st.markdown("**PSYSCAN v2.1** — Outil d’analyse | [GitHub](https://github.com/nahtlikeyouthink/psyscan/tree/v2.1-sismographe) | Sismographe du Discours")
 
-# LIEN CLIQUABLE GARANTI
-st.markdown("---")
-st.markdown(
-    """
-    <div style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #666;">
-        <a href="https://linktr.ee/iamnaht" target="_blank" style="color: #666; text-decoration: underline;">
-            Naht Like You Think
-        </a>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+        # === LIEN NAHT LIKE YOU THINK (CLIQUABLE) ===
+        st.markdown("---")
+        st.markdown(
+            """
+            <div style="text-align: center; margin: 20px 0; font-size: 0.9em; color: #666;">
+                <a href="https://linktr.ee/iamnaht" target="_blank" style="color: #666; text-decoration: underline;">
+                    Naht Like You Think
+                </a>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
