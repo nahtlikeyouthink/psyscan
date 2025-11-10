@@ -75,8 +75,6 @@ if st.button("Lancer le sismographe", type="primary"):
             st.metric("**Ψₐ = 0.8–0.95**", "Dominant", help="S1 hégémonique → risque de totalisation")
             st.caption("Ex : propagande, culte")
 
-            st.markdown("---")
-
         with col_psi:
             st.metric(
                 label="**Ψₐ**",
