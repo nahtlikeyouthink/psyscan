@@ -121,13 +121,15 @@ if st.button("Lancer le sismographe", type="primary"):
         st.markdown("---")
         st.markdown("**PSYSCAN v2.1** — Outil d’analyse lacanienne | [GitHub](https://github.com/nahtlikeyouthink/psyscan/tree/v2.1-sismographe) | Éthique & open-source")
 
-# =========================================================
-# LIEN NAHT LIKE YOU THINK (BAS DE PAGE)
-# =========================================================
+# LIEN CLIQUABLE GARANTI
 st.markdown("---")
 st.markdown(
-    "<div style='text-align: center; color: #666; font-size: 0.9em; margin-top: 20px;'>"
-    "[Naht Like You Think](https://linktr.ee/iamnaht) — pensée critique et outils libres"
-    "</div>",
+    """
+    <div style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #666;">
+        <a href="https://linktr.ee/iamnaht" target="_blank" style="color: #666; text-decoration: underline;">
+            Naht Like You Think
+        </a> — pensée critique &amp; outils libres
+    </div>
+    """,
     unsafe_allow_html=True
 )
