@@ -58,6 +58,7 @@ def analyze_discourse(text, lang='Français', block_size=5):
     lang_code = 'fr' if lang.lower().startswith('fr') else 'en'
     nltk_lang = NLTK_LANGUAGES.get(lang_code, 'english')
 
+    # Détection langue
     try:
         detected = detect(text[:500])
         if detected[:2] != lang_code:
@@ -66,16 +67,6 @@ def analyze_discourse(text, lang='Français', block_size=5):
         pass
 
     nlp = load_spacy_model(lang_code)
-
-    # === CALCUL DE L'INDICE Ψ ADAPTATIF ===
-    s1_freq = Counter(s1_history)
-    total = len(s1_history)
-    psi_brut = max(s1_freq.values()) / total if total > 0 else 0
-    
-    # NORMALISATION ADAPTATIVE
-    psi_adaptatif = psi_brut * (1 - block_size / 20.0)
-    
-    return s1_history, regimes, key_moments, round(psi_brut, 3), round(psi_adaptatif, 3)
 
     # --- TOKENISATION ROBUSTE ---
     try:
@@ -92,7 +83,7 @@ def analyze_discourse(text, lang='Français', block_size=5):
         sentences = sent_tokenize(text, language='english')
 
     blocks = [' '.join(sentences[i:i + block_size]) for i in range(0, len(sentences), block_size)]
-    s1_history, regimes, key_moments = [], [], []  
+    s1_history, regimes, key_moments = [], [], []
 
     for i, block in enumerate(blocks):
         s1 = detect_s1(block, nlp)
@@ -108,9 +99,18 @@ def analyze_discourse(text, lang='Français', block_size=5):
                 "polarity": round(polarity, 2)
             })
 
-    # === CALCUL DE L'INDICE Ψ ===
+    # === CALCULS FINAUX (APRÈS LA BOUCLE !) ===
     s1_freq = Counter(s1_history)
     total = len(s1_history)
-    psi = max(s1_freq.values()) / total if total > 0 else 0
+    psi_brut = max(s1_freq.values()) / total if total > 0 else 0
+    psi_adaptatif = psi_brut * (1 - block_size / 20.0)
+    confiance = 1.0 - abs(0.5 - psi_adaptatif)
 
-    return s1_history, regimes, key_moments, round(psi, 3)
+    return (
+        s1_history,
+        regimes,
+        key_moments,
+        round(psi_brut, 3),
+        round(psi_adaptatif, 3),
+        round(confiance, 3)
+    )
