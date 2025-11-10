@@ -54,6 +54,19 @@ if st.button("Lancer le sismographe", type="primary"):
 
         st.markdown("---")
 
+        # === INDICE Ψ ADAPTATIF ===
+        st.subheader("Indice Ψₐ — Force du Signifiant-Maître (Adaptatif)")
+        col_psi, col_help = st.columns([1, 4])
+        with col_psi:
+            st.metric(
+        label="**Indice Ψₐ**",
+        value=f"{psi_adaptatif:.3f}",
+        help="Ψ normalisé selon la granularité (stable)"
+        )
+            st.caption(f"Ψ brut: {psi_brut:.3f} | Granularité: {block_size}")
+        with col_help:
+            st.caption("Ψₐ corrige le biais des gros blocs → mesure réelle de la force du S1.")
+
                 # === JAUGE VISUELLE ===
         st.progress(psi)
         if psi > 0.7:
