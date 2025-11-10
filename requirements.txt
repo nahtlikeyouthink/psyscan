@@ -1,9 +1,8 @@
 # requirements.txt
 streamlit
-spacy<3.7
-# OU pour être plus spécifique :
-# spacy==3.6.0  # ou 3.6.1, 3.6.2...
+spacy<3.7 
+# OU, pour être très spécifique : spacy==3.6.0
 nltk
 textblob
 langdetect
-#...
+# ... autres dépendances
