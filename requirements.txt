@@ -1,9 +1,8 @@
 streamlit
-spacy[lookups]==3.7.5
+spacy==3.7.5
+fr-core-news-sm @ https://github.com/explosion/spacy-models/releases/download/fr_core_news_sm-3.7.0/fr_core_news_sm-3.7.0-py3-none-any.whl
 nltk
 textblob
 langdetect
 matplotlib
 numpy>=1.26.0
-
-# FORCED REBUILD - spacy 3.7.5 for Python 3.13
