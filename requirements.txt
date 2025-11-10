@@ -1,8 +1,6 @@
 # requirements.txt
 streamlit
-spacy<3.7 
-# OU, pour être très spécifique : spacy==3.6.0
+spacy==3.6.0  # Force l'installation de la version 3.6.0
 nltk
 textblob
 langdetect
-# ... autres dépendances
