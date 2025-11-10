@@ -64,15 +64,6 @@ if st.button("Lancer le sismographe", type="primary"):
         with col_help:
             st.caption("Plus Ψ est élevé, plus le discours dépend d’un seul signifiant. Ex : 0.85 = S1 ultra-dominant.")
 
-        # Jauge visuelle
-        st.progress(psi)
-        if psi > 0.7:
-            st.warning("**Ψ élevé** → Risque de totalisation symbolique (S1 hégémonique)")
-        elif psi < 0.3:
-            st.info("**Ψ bas** → Discours dispersé, peu d’ancrage symbolique")
-        else:
-            st.success("**Ψ équilibré** → Discours structuré mais souple")
-
         st.markdown("---")
 
         # === SISMO VISUEL ===
@@ -119,7 +110,7 @@ if st.button("Lancer le sismographe", type="primary"):
 
         # === LIEN PÉDAGOGIQUE ===
         st.markdown("---")
-        st.markdown("**PSYSCAN v2.1** — Outil d’analyse lacanienne | [GitHub](https://github.com/nahtlikeyouthink/psyscan/tree/v2.1-sismographe) | Éthique & open-source")
+        st.markdown("**PSYSCAN v2.1** — Outil d’analyse | [GitHub](https://github.com/nahtlikeyouthink/psyscan/tree/v2.1-sismographe) | Éthique & open-source")
 
 # LIEN CLIQUABLE GARANTI
 st.markdown("---")
