@@ -15,22 +15,6 @@ st.set_page_config(page_title="PSYSCAN v2.1", layout="wide")
 st.title("PSYSCAN v2.1 — Sismographe du Discours")
 st.caption("*Analyse lacanienne en temps réel : évolution symbolique, topologie, points de rupture.*")
 
-# =========================================================
-# PRÉSENTATION PHILOSOPHIQUE
-# =========================================================
-st.header("Fondements Épistémologiques")
-st.markdown("""
-**PSYSCAN révèle la structure du pouvoir — pas les individus.**  
-Cet outil open-source part d'une prémisse psychanalytique et philosophique : le discours politique est d'abord **pulsionnel** et **structurant**. Le **Signifiant-Maître (S1)** n'est pas un choix conscient, mais la *clé de voûte* autour de laquelle le pouvoir s'organise. PSYSCAN agit comme un **sismographe du discours**, mesurant les **tremblements structurels** pour révéler la nature et la stabilité du pouvoir.
-""")
-
-st.subheader("Mesurer l'Invisible (L'Indice Ψ)")
-st.markdown("""
-L'**Indice $\Psi$ (Psi)** quantifie la **centralité** du S1 dans le discours.  
-Un score élevé indique une **dépendance critique** à un seul signifiant — un point de fragilité ou de totalisation symbolique.
-""")
-st.markdown("---")
-
 # === ZONE 1 : LANGUE ===
 col1, _ = st.columns([1, 3])
 with col1:
@@ -60,12 +44,25 @@ if st.button("Lancer le sismographe", type="primary"):
         st.subheader("Indice Ψ — Force du Signifiant-Maître")
         col_psi, col_help = st.columns([1, 4])
         with col_psi:
-            st.metric("**Indice Ψ**", f"**{psi:.3f}**", help="Centralité du S1 (0 = dispersé, 1 = dominant)")
+            st.metric(
+        label="**Indice Ψ**",
+        value=f"{psi:.3f}",
+        help="Centralité du S1 (0 = dispersé, 1 = dominant)"
+        )
         with col_help:
             st.caption("Plus Ψ est élevé, plus le discours dépend d’un seul signifiant. Ex : 0.85 = S1 ultra-dominant.")
 
         st.markdown("---")
 
+                # === JAUGE VISUELLE ===
+        st.progress(psi)
+        if psi > 0.7:
+            st.warning("**Ψ élevé** → Risque de totalisation symbolique (S1 hégémonique)")
+        elif psi < 0.3:
+            st.info("**Ψ bas** → Discours dispersé, peu d’ancrage symbolique")
+        else:
+            st.success("**Ψ équilibré** → Discours structuré mais souple")
+            
         # === SISMO VISUEL ===
         st.subheader("Sismographe Symbolique")
         fig, ax = plt.subplots(figsize=(12, 5))
@@ -108,9 +105,23 @@ if st.button("Lancer le sismographe", type="primary"):
             - **Interprétation** : Le discours organise le pouvoir autour de **{s1_global}**, avec des oscillations révélant les points de renégociation du lien social.
             """)
 
+        # =========================================================
+        # PRÉSENTATION
+        # =========================================================
+        st.markdown("---")
+        st.header("Fondements Épistémologiques")
+        st.markdown("""
+        **PSYSCAN révèle la structure du pouvoir — pas les individus.**  
+        Cet outil open-source part d'une prémisse psychanalytique et philosophique : le discours politique est d'abord **pulsionnel** et **structurant**. Le **Signifiant-Maître (S1)** n'est pas un choix conscient, mais la *clé de voûte* autour de laquelle le pouvoir s'organise. PSYSCAN agit comme un **sismographe du discours**, mesurant les **tremblements structurels** pour révéler la nature et la stabilité du pouvoir.
+        """)
+        st.subheader("Mesurer l'Invisible (L'Indice Ψ)")
+        st.markdown("""
+        L'**Indice $\Psi$ (Psi)** quantifie la **centralité** du S1 dans le discours.  
+        Un score élevé indique une **dépendance critique** à un seul signifiant — un point de fragilité ou de totalisation symbolique.
+        """)
         # === LIEN PÉDAGOGIQUE ===
         st.markdown("---")
-        st.markdown("**PSYSCAN v2.1** — Outil d’analyse | [GitHub](https://github.com/nahtlikeyouthink/psyscan/tree/v2.1-sismographe) | Éthique & open-source")
+        st.markdown("**PSYSCAN v2.1** — Outil d’analyse | [GitHub](https://github.com/nahtlikeyouthink/psyscan/tree/v2.1-sismographe) | Sismographe du Discours")
 
 # LIEN CLIQUABLE GARANTI
 st.markdown("---")
