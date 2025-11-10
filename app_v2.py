@@ -55,7 +55,7 @@ if st.button("Lancer le sismographe", type="primary"):
                 st.stop()
 
         # === INDICES : Ψₐ + CONFIANCE ===
-        st.subheader("Indices")
+        st.subheader("Mesurer l'Invisible (L'Indice Ψ)")
         col_psi, col_conf, col_help = st.columns([1, 1, 3])
 
         st.markdown("""
@@ -122,13 +122,6 @@ if st.button("Lancer le sismographe", type="primary"):
             - **Ruptures** : **{len(key_moments)}** moments de bascule.
             - **Interprétation** : Le discours organise le pouvoir autour de **{s1_global}**, avec des oscillations révélant les points de renégociation du lien social.
             """)
-
-        # === PRÉSENTATION PHILOSOPHIQUE (EN BAS) ===
-        st.subheader("Mesurer l'Invisible (L'Indice Ψ)")
-        st.markdown("""
-        L'**Indice $\Psi$ (Psi)** quantifie la **centralité** du S1 dans le discours.  
-        Un score élevé indique une **dépendance critique** à un seul signifiant — un point de fragilité ou de totalisation symbolique.
-        """)
 
         # === LIEN PÉDAGOGIQUE ===
         st.markdown("---")
