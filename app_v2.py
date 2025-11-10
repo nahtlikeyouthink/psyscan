@@ -127,7 +127,7 @@ if st.button("Lancer le sismographe", type="primary"):
 st.markdown("---")
 st.markdown(
     "<div style='text-align: center; color: #666; font-size: 0.9em; margin-top: 20px;'>"
-    "[Naht Like You Think](https://linktr.ee/iamnaht) — pensée critique & outils libres"
+    "[Naht Like You Think](https://linktr.ee/iamnaht) — pensée critique et outils libres"
     "</div>",
     unsafe_allow_html=True
 )
