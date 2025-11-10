@@ -87,7 +87,7 @@ except Exception as e:
         sentences = sent_tokenize(text, language='english')
 
     blocks = [' '.join(sentences[i:i + block_size]) for i in range(0, len(sentences), block_size)]
-    s1_history, regimes, key_moments = [], [], [],
+    s1_history, regimes, key_moments = [], [], []
 
     for i, block in enumerate(blocks):
         s1 = detect_s1(block, nlp)
