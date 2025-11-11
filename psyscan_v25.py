@@ -1,5 +1,6 @@
 # psyscan.py
-# PSYSCAN v2.5 – Sismographe + Rapport Poétique
+# PSYSCAN v2.5
+
 import streamlit as st
 import matplotlib.pyplot as plt
 import io
