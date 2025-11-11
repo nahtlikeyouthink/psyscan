@@ -16,19 +16,31 @@ from typing import Any, Dict, Tuple
 
 DetectorFactory.seed = 0
 
-# --- TÉLÉCHARGEMENT AUTOMATIQUE DES CORPUS NLTK ---
-import nltk
-nltk.download('punkt', quiet=True)
-nltk.download('punkt_tab', quiet=True)
-nltk.download('stopwords', quiet=True)
-
-# --- NLTK ---
+# --- TÉLÉCHARGEMENT AUTOMATIQUE NLTK (UNIQUE & ROBUSTE) ---
 def ensure_nltk_data():
-    for res in ['punkt_tab', 'stopwords']:
+    import nltk
+    from pathlib import Path
+    import os
+
+    # Dossier NLTK dans le home (accessible en écriture)
+    nltk_data_dir = Path.home() / "nltk_data"
+    nltk_data_dir.mkdir(exist_ok=True)
+    os.environ["NLTK_DATA"] = str(nltk_data_dir)
+
+    # Ressources nécessaires
+    resources = {
+        'punkt': 'tokenizers/punkt',
+        'punkt_tab': 'tokenizers/punkt_tab',
+        'stopwords': 'corpora/stopwords'
+    }
+
+    for name, path in resources.items():
         try:
-            nltk.data.find(f'tokenizers/{res}' if res == 'punkt_tab' else f'corpora/{res}')
+            nltk.data.find(path)
         except LookupError:
-            nltk.download(res, quiet=True)
+            nltk.download(name, download_dir=str(nltk_data_dir), quiet=True)
+
+# Appel immédiat
 ensure_nltk_data()
 
 # --- spaCy ---
