@@ -1,7 +1,7 @@
 # psyscan_core_v2_5.py
-# PSYSCAN v2.5
+# PSYSCAN v2.5.2
 # Licence : AGPL-3.0
-# Auteur : NAHT LIKE YOU THINK 
+# Auteur : NAHT LIKE YOU THINK
 
 import streamlit as st
 import nltk
@@ -13,41 +13,27 @@ from collections import Counter
 import re
 import textwrap
 from typing import Any, Dict, Tuple
+from pathlib import Path
+import os
 
 DetectorFactory.seed = 0
 
-# --- TÉLÉCHARGEMENT AUTOMATIQUE NLTK (UNIQUE & ROBUSTE) ---
+# --- NLTK + spaCy ROBUSTE ---
 def ensure_nltk_data():
-    from pathlib import Path
-    import os
-
-    # Dossier NLTK dans /tmp (writable sur Streamlit Cloud)
     nltk_data_dir = Path('/tmp') / "nltk_data"
     nltk_data_dir.mkdir(exist_ok=True)
     os.environ["NLTK_DATA"] = str(nltk_data_dir)
-
-    # Ajoute au path NLTK IMMÉDIATEMENT
     if str(nltk_data_dir) not in nltk.data.path:
         nltk.data.path.append(str(nltk_data_dir))
 
-    # Ressources nécessaires
-    resources = {
-        'punkt': 'tokenizers/punkt',
-        'punkt_tab': 'tokenizers/punkt_tab',
-        'stopwords': 'corpora/stopwords'
-    }
-
-    for name, path in resources.items():
+    for res in ['punkt', 'punkt_tab', 'stopwords']:
         try:
+            path = f'tokenizers/{res}' if res != 'stopwords' else f'corpora/{res}'
             nltk.data.find(path)
         except LookupError:
-            nltk.download(name, download_dir=str(nltk_data_dir), quiet=True)
+            nltk.download(res, download_dir=str(nltk_data_dir), quiet=True)
 
-# Appel immédiat
 ensure_nltk_data()
-
-# --- spaCy ---
-LANG_MODELS = {'fr': 'fr_core_news_sm', 'en': 'en_core_web_sm'}
 
 @st.cache_resource(show_spinner=False)
 def load_spacy_model(lang_code: str):
@@ -55,14 +41,8 @@ def load_spacy_model(lang_code: str):
     try:
         return spacy.load(model_name)
     except Exception as e:
-        st.warning(f"Modèle {model_name} manquant → téléchargement...")
-        try:
-            import subprocess, sys
-            subprocess.check_call([sys.executable, "-m", "spacy", "download", model_name])
-            return spacy.load(model_name)
-        except Exception as e2:
-            st.error(f"Échec téléchargement : {e2}")
-            return None
+        st.warning(f"spaCy modèle {model_name} manquant → fallback texte brut")
+        return None
 
 # --- STOPWORDS & ARTÉFACTS ---
 ORAL_ARTIFACTS = {'euh', 'heu', 'hum', 'ah', 'bon', 'voilà', 'donc', 'alors', 'hein', 'ben', 'bah'}
@@ -73,7 +53,8 @@ STOPWORDS_FR = {
     'peu', 'assez', 'aussi', 'encore', 'déjà', 'toujours', 'jamais', 'souvent', 'parfois', 'bientôt',
     'hier', 'aujourd’hui', 'demain', 'maintenant', 'alors', 'donc', 'car', 'mais', 'ni', 'si', 'comme',
     'lorsque', 'puisque', 'afin', 'parce', 'même', 'seulement', 'surtout', 'ainsi', 'enfin', 'bref',
-    'voici', 'voilà', 'cependant', 'néanmoins', 'pourtant', 'd’ailleurs', 'en effet', 'en fait'
+    'voici', 'voilà', 'cependant', 'néanmoins', 'pourtant', 'd’ailleurs', 'en effet', 'en fait',
+    'faire', 'dire', 'pouvoir', 'vouloir', 'savoir', 'devoir', 'falloir', 'venir', 'aller', 'prendre'
 }
 
 # --- CORPUS VULGUS v1.0 ---
@@ -136,20 +117,16 @@ def nettoyer_texte(texte: str) -> str:
 
 def detect_s1_global(input_data: Any) -> Tuple[str, float, Counter]:
     if isinstance(input_data, str):
-        # Fallback texte brut → filtre strict
-        words = [w.lower() for w in re.findall(r'\b[a-zA-ZÀ-ÿ]{3,}\b', input_data) 
-                 if w.lower() not in STOPWORDS_FR and w.lower() not in ORAL_ARTIFACTS]
+        words = [w.lower() for w in re.findall(r'\b[a-zà-ÿ]{4,}\b', input_data)
+                 if w.lower() not in STOPWORDS_FR 
+                 and w.lower() not in ORAL_ARTIFACTS]
     else:
-        # spaCy → lemmatisation + stop
         words = [t.lemma_.lower() for t in input_data 
-                 if t.is_alpha and not t.is_stop and len(t.lemma_) > 2]
+                 if t.is_alpha and not t.is_stop and len(t.lemma_) > 3]
     freq = Counter(words)
-    total = sum(freq.values())
-    if total == 0:
-        return "?", 0.0, freq
-    s1, count = freq.most_common(1)[0]
-    centralite = count / total
-    return s1, centralite, freq
+    total = sum(freq.values()) or 1
+    s1, count = freq.most_common(1)[0] if freq else ("?", 0)
+    return s1, count / total, freq
 
 def compute_je_nous(text: str) -> Tuple[int, int, float]:
     je = len(re.findall(r'\bje\b', text.lower()))
@@ -183,14 +160,14 @@ def analyze_discourse_v25(text: str, lang: str = "Français") -> Dict:
     nlp = load_spacy_model(lang_code)
     texte_net = nettoyer_texte(text)
 
-    # --- S1 GLOBAL (Ψ stable) ---
+    # --- S1 GLOBAL ---
     if nlp:
         doc = nlp(texte_net)
         s1, centralite, freq = detect_s1_global(doc)
     else:
         s1, centralite, freq = detect_s1_global(texte_net)
-    
-    total_mots = sum(freq.values())
+   
+    total_mots = sum(freq.values()) or 1
     count_s1 = freq[s1]
     psi = compute_psi(s1, centralite, count_s1, total_mots)
     je, nous, ratio_nous_je = compute_je_nous(text)
@@ -204,7 +181,7 @@ def analyze_discourse_v25(text: str, lang: str = "Français") -> Dict:
     s1_history = []
     regimes = []
     key_moments = []
-    
+
     for i, block in enumerate(blocks):
         block_net = nettoyer_texte(block)
         if nlp:
@@ -242,32 +219,4 @@ def analyze_discourse_v25(text: str, lang: str = "Français") -> Dict:
         VULGUS_CORPUS["dependance"]["refus_actif"] if s1 == "refuser" else
         VULGUS_CORPUS["dependance"]["positif"].format(s1=s1) if polarite == "positif" else
         VULGUS_CORPUS["dependance"]["négatif"].format(s1=s1) if polarite == "négatif" else
-        VULGUS_CORPUS["dependance"]["action"]
-    )
-    risque = VULGUS_CORPUS["risque"]["institution"] if nous > je * 2 else VULGUS_CORPUS["risque"]["personne"]
-    conclusion = VULGUS_CORPUS["conclusion"][icone]
-    axiome = f"Le {s1.upper()} ({polarite}) suture la faille via la boucle collective."
-
-    rapport = textwrap.dedent(f"""
-    #### ANALYSE DE LA NARRATIVE INCONSCIENTE
-    * **Mot-Clé Central (L'Ancrage) :** {ancrage} ({int(centralite*100)} %)
-    * **La Fissure Révélée :** {fissure}
-    * **Le Projet de Leadership :** {projet}
-    ##### La Machine à Contrôle
-    * **Fonction de la Répétition (Rituel) :** {rituel}
-    * **Le Prix de l'Unité (Contrat) :** {contrat}
-    ##### La Vulnérabilité du Récit
-    * **Dépendance Critique :** {dependance}
-    * **Le Risque Principal :** {risque}
-    #### AXIO ME POÉTIQUE
-    > *{axiome}*
-    #### CONCLUSION : {icone}
-    *{conclusion}*
-    """).strip()
-
-    return {
-        's1': s1, 'psi': psi, 'centralite': centralite, 'polarite': polarite,
-        'je': je, 'nous': nous, 'ratio_nous_je': ratio_nous_je,
-        's1_history': s1_history, 'regimes': regimes, 'key_moments': key_moments,
-        'rapport': rapport, 'axiome': axiome
-    }
+       
