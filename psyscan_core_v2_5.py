@@ -33,14 +33,15 @@ def load_spacy_model(lang_code: str):
     model_name = 'fr_core_news_sm' if lang_code == 'fr' else 'en_core_web_sm'
     try:
         return spacy.load(model_name)
-    except OSError:
-        st.warning(f"Modèle {model_name} manquant → téléchargement...")
-        import subprocess, sys
-        subprocess.check_call([sys.executable, "-m", "spacy", "download", model_name])
-        return spacy.load(model_name)
     except Exception as e:
-        st.error(f"spaCy échoué : {e}")
-        return None
+        st.warning(f"Modèle {model_name} manquant → téléchargement...")
+        try:
+            import subprocess, sys
+            subprocess.check_call([sys.executable, "-m", "spacy", "download", model_name])
+            return spacy.load(model_name)
+        except Exception as e2:
+            st.error(f"Échec téléchargement : {e2}")
+            return None
 
 # --- STOPWORDS & ARTÉFACTS ---
 ORAL_ARTIFACTS = {'euh', 'heu', 'hum', 'ah', 'bon', 'voilà', 'donc', 'alors', 'hein', 'ben', 'bah'}
