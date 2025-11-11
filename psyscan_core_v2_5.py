@@ -12,7 +12,7 @@ from langdetect import detect, DetectorFactory
 from collections import Counter
 import re
 import textwrap
-from typing import List, Dict, Tuple, Any
+from typing import Any, Dict, Tuple
 
 DetectorFactory.seed = 0
 
@@ -44,9 +44,9 @@ STOPWORDS_FR = {
     'pour', 'par', 'avec', 'sans', 'mais', 'car', 'que', 'qui', 'quoi', 'dont', 'où', 'quand', 'si',
     'est', 'sont', 'a', 'avoir', 'être', 'tout', 'tous', 'toute', 'toutes', 'plus', 'moins', 'très',
     'peu', 'assez', 'aussi', 'encore', 'déjà', 'toujours', 'jamais', 'souvent', 'parfois', 'bientôt',
-    'hier', 'aujourd'hui', 'demain', 'maintenant', 'alors', 'donc', 'car', 'mais', 'ni', 'si', 'comme',
+    'hier', 'aujourd’hui', 'demain', 'maintenant', 'alors', 'donc', 'car', 'mais', 'ni', 'si', 'comme',
     'lorsque', 'puisque', 'afin', 'parce', 'même', 'seulement', 'surtout', 'ainsi', 'enfin', 'bref',
-    'voici', 'voilà', 'cependant', 'néanmoins', 'pourtant', 'd'ailleurs', 'en effet', 'en fait'
+    'voici', 'voilà', 'cependant', 'néanmoins', 'pourtant', 'd’ailleurs', 'en effet', 'en fait'
 }
 
 # --- CORPUS VULGUS v1.0 ---
@@ -107,13 +107,11 @@ def nettoyer_texte(texte: str) -> str:
     texte = re.sub(r'\s+', ' ', texte).strip()
     return texte.lower()
 
-def detect_s1_global(input_data: Any, nlp: Any = None) -> Tuple[str, float, Counter]:
+def detect_s1_global(input_data: Any) -> Tuple[str, float, Counter]:
     """Traite texte brut OU doc spaCy"""
     if isinstance(input_data, str):
-        # Fallback NLTK
         words = [w.lower() for w in input_data.split() if w.isalpha() and len(w) > 2 and w not in STOPWORDS_FR]
     else:
-        # spaCy doc
         words = [t.lemma_.lower() for t in input_data if t.is_alpha and not t.is_stop and len(t.lemma_) > 2]
     freq = Counter(words)
     total = sum(freq.values())
@@ -168,7 +166,7 @@ def analyze_discourse_v25(text: str, lang: str = "Français") -> Dict:
     je, nous, ratio_nous_je = compute_je_nous(text)
     polarite = polarite_s1(text, s1)
 
-    # --- SISMO (pour visu) ---
+    # --- SISMO ---
     nltk_lang = 'french' if lang_code == 'fr' else 'english'
     sentences = sent_tokenize(text, language=nltk_lang)
     block_size = 6
@@ -197,7 +195,7 @@ def analyze_discourse_v25(text: str, lang: str = "Français") -> Dict:
         if i > 1 and regime != regimes[i-1]:
             key_moments.append({"id": i+1, "s1": block_s1, "regime": regime, "polarity": round(polarity_val, 2)})
 
-    # --- RAPPORT NARRATIF (v1.0) ---
+    # --- RAPPORT ---
     icone = "FORCLUSION" if psi > 90 else "SURRÉGIME" if psi > 80 else "ATTENTION" if psi > 65 else "CONFIANCE" if psi < 50 else "STABLE"
     ancrage = VULGUS_CORPUS["ancrage"].get(s1, f"L'obsession de « {s1} » comme acte de pouvoir")
     fissure = (
