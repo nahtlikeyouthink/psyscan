@@ -16,6 +16,12 @@ from typing import Any, Dict, Tuple
 
 DetectorFactory.seed = 0
 
+# --- TÉLÉCHARGEMENT AUTOMATIQUE DES CORPUS NLTK ---
+import nltk
+nltk.download('punkt', quiet=True)
+nltk.download('punkt_tab', quiet=True)
+nltk.download('stopwords', quiet=True)
+
 # --- NLTK ---
 def ensure_nltk_data():
     for res in ['punkt_tab', 'stopwords']:
