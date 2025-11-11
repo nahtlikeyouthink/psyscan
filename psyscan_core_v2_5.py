@@ -1,5 +1,5 @@
 # psyscan_core_v2_5.py
-# PSYSCAN v2.5.2
+# PSYSCAN v2.5.2 — INDESTRUCTIBLE
 # Licence : AGPL-3.0
 # Auteur : NAHT LIKE YOU THINK
 
@@ -7,7 +7,7 @@ import streamlit as st
 import nltk
 from nltk.tokenize import sent_tokenize
 from textblob import TextBlob
-import spacy
+import spacy  # ← IMPORT OBLIGATOIRE ICI
 from langdetect import detect, DetectorFactory
 from collections import Counter
 import re
@@ -219,4 +219,31 @@ def analyze_discourse_v25(text: str, lang: str = "Français") -> Dict:
         VULGUS_CORPUS["dependance"]["refus_actif"] if s1 == "refuser" else
         VULGUS_CORPUS["dependance"]["positif"].format(s1=s1) if polarite == "positif" else
         VULGUS_CORPUS["dependance"]["négatif"].format(s1=s1) if polarite == "négatif" else
-       
+        VULGUS_CORPUS["dependance"]["action"]
+    )
+    risque = VULGUS_CORPUS["risque"]["institution"] if nous > je * 2 else VULGUS_CORPUS["risque"]["personne"]
+    conclusion = VULGUS_CORPUS["conclusion"][icone]
+    axiome = f"Le {s1.upper()} ({polarite}) suture la faille via la boucle collective."
+    rapport = textwrap.dedent(f"""
+    #### ANALYSE DE LA NARRATIVE INCONSCIENTE
+    * **Mot-Clé Central (L'Ancrage) :** {ancrage} ({int(centralite*100)} %)
+    * **La Fissure Révélée :** {fissure}
+    * **Le Projet de Leadership :** {projet}
+    ##### La Machine à Contrôle
+    * **Fonction de la Répétition (Rituel) :** {rituel}
+    * **Le Prix de l'Unité (Contrat) :** {contrat}
+    ##### La Vulnérabilité du Récit
+    * **Dépendance Critique :** {dependance}
+    * **Le Risque Principal :** {risque}
+    #### AXIO ME POÉTIQUE
+    > *{axiome}*
+    #### CONCLUSION : {icone}
+    *{conclusion}*
+    """).strip()
+
+    return {
+        's1': s1, 'psi': psi, 'centralite': centralite, 'polarite': polarite,
+        'je': je, 'nous': nous, 'ratio_nous_je': ratio_nous_je,
+        's1_history': s1_history, 'regimes': regimes, 'key_moments': key_moments,
+        'rapport': rapport, 'axiome': axiome
+    }
