@@ -18,6 +18,32 @@ import os
 
 DetectorFactory.seed = 0
 
+# --- NLTK + spaCy ROBUSTE ---
+def ensure_nltk_data():
+    nltk_data_dir = Path('/tmp') / "nltk_data"
+    nltk_data_dir.mkdir(exist_ok=True)
+    os.environ["NLTK_DATA"] = str(nltk_data_dir)
+    if str(nltk_data_dir) not in nltk.data.path:
+        nltk.data.path.append(str(nltk_data_dir))
+
+    for res in ['punkt', 'punkt_tab', 'stopwords']:
+        try:
+            path = f'tokenizers/{res}' if res != 'stopwords' else f'corpora/{res}'
+            nltk.data.find(path)
+        except LookupError:
+            nltk.download(res, download_dir=str(nltk_data_dir), quiet=True)
+
+ensure_nltk_data()
+
+@st.cache_resource(show_spinner=False)
+def load_spacy_model(lang_code: str):
+    model_name = 'fr_core_news_sm' if lang_code == 'fr' else 'en_core_web_sm'
+    try:
+        return spacy.load(model_name)
+    except Exception as e:
+        st.warning(f"spaCy modèle {model_name} manquant → fallback texte brut")
+        return None
+
 # --- STOPWORDS & ARTÉFACTS ---
 ORAL_ARTIFACTS = {'euh', 'heu', 'hum', 'ah', 'bon', 'voilà', 'donc', 'alors', 'hein', 'ben', 'bah'}
 STOPWORDS_FR = {
