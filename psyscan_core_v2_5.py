@@ -18,14 +18,17 @@ DetectorFactory.seed = 0
 
 # --- TÉLÉCHARGEMENT AUTOMATIQUE NLTK (UNIQUE & ROBUSTE) ---
 def ensure_nltk_data():
-    import nltk
     from pathlib import Path
     import os
 
-    # Dossier NLTK dans le home (accessible en écriture)
-    nltk_data_dir = Path.home() / "nltk_data"
+    # Dossier NLTK dans /tmp (writable sur Streamlit Cloud)
+    nltk_data_dir = Path('/tmp') / "nltk_data"
     nltk_data_dir.mkdir(exist_ok=True)
     os.environ["NLTK_DATA"] = str(nltk_data_dir)
+
+    # Ajoute au path NLTK IMMÉDIATEMENT
+    if str(nltk_data_dir) not in nltk.data.path:
+        nltk.data.path.append(str(nltk_data_dir))
 
     # Ressources nécessaires
     resources = {
