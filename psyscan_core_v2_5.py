@@ -32,18 +32,14 @@ LANG_MODELS = {'fr': 'fr_core_news_sm', 'en': 'en_core_web_sm'}
 def load_spacy_model(lang_code: str):
     model_name = 'fr_core_news_sm' if lang_code == 'fr' else 'en_core_web_sm'
     try:
-        nlp = spacy.load(model_name)
-        return nlp
+        return spacy.load(model_name)
     except OSError:
-        # Télécharge le modèle dynamiquement
-        st.info(f"Téléchargement de {model_name}...")
-        import subprocess
-        import sys
+        st.warning(f"Modèle {model_name} manquant → téléchargement...")
+        import subprocess, sys
         subprocess.check_call([sys.executable, "-m", "spacy", "download", model_name])
-        nlp = spacy.load(model_name)
-        return nlp
+        return spacy.load(model_name)
     except Exception as e:
-        st.error(f"ERREUR spaCy : {e}")
+        st.error(f"spaCy échoué : {e}")
         return None
 
 # --- STOPWORDS & ARTÉFACTS ---
