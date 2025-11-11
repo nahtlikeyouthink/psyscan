@@ -30,11 +30,13 @@ LANG_MODELS = {'fr': 'fr_core_news_sm', 'en': 'en_core_web_sm'}
 
 @st.cache_resource(show_spinner=False)
 def load_spacy_model(lang_code: str):
-    model_name = LANG_MODELS.get(lang_code, 'fr_core_news_sm')
+    model_name = 'fr_core_news_sm'  # Force le modèle
     try:
+        import spacy
         return spacy.load(model_name)
     except Exception as e:
-        st.warning(f"spaCy indisponible ({e}) → fallback NLTK")
+        st.error(f"ERREUR CRITIQUE spaCy : {e}")
+        st.info("Assure-toi que `fr_core_news_sm` est dans requirements.txt")
         return None
 
 # --- STOPWORDS & ARTÉFACTS ---
