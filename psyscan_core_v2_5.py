@@ -1,7 +1,7 @@
 # psyscan_core_v2_5.py
-# PSYSCAN v2.5.
+# PSYSCAN v2.5
 # Licence : AGPL-3.0
-# Auteur : NAHT LIKE YOU THINK
+# Auteur : NAHT LIKE YOU THINK 
 
 import streamlit as st
 import nltk
@@ -14,7 +14,7 @@ import re
 import textwrap
 from typing import List, Dict, Tuple, Any
 
-DetectorFactory.seed = 0  # Déterminisme
+DetectorFactory.seed = 0
 
 # --- NLTK ---
 def ensure_nltk_data():
@@ -44,28 +44,28 @@ STOPWORDS_FR = {
     'pour', 'par', 'avec', 'sans', 'mais', 'car', 'que', 'qui', 'quoi', 'dont', 'où', 'quand', 'si',
     'est', 'sont', 'a', 'avoir', 'être', 'tout', 'tous', 'toute', 'toutes', 'plus', 'moins', 'très',
     'peu', 'assez', 'aussi', 'encore', 'déjà', 'toujours', 'jamais', 'souvent', 'parfois', 'bientôt',
-    'hier', 'aujourd’hui', 'demain', 'maintenant', 'alors', 'donc', 'car', 'mais', 'ni', 'si', 'comme',
+    'hier', 'aujourd'hui', 'demain', 'maintenant', 'alors', 'donc', 'car', 'mais', 'ni', 'si', 'comme',
     'lorsque', 'puisque', 'afin', 'parce', 'même', 'seulement', 'surtout', 'ainsi', 'enfin', 'bref',
-    'voici', 'voilà', 'cependant', 'néanmoins', 'pourtant', 'd’ailleurs', 'en effet', 'en fait'
+    'voici', 'voilà', 'cependant', 'néanmoins', 'pourtant', 'd'ailleurs', 'en effet', 'en fait'
 }
 
 # --- CORPUS VULGUS v1.0 ---
 VULGUS_CORPUS = {
     "ancrage": {
-        "agir": "L’ordre d’agir comme un général",
-        "travail": "L’obsession du travail comme devoir sacré",
+        "agir": "L'ordre d'agir comme un général",
+        "travail": "L'obsession du travail comme devoir sacré",
         "refuser": "Le refus comme acte de survie",
         "puissance": "La puissance comme prothèse verbale",
         "peuple": "Le peuple comme bouclier collectif",
         "révolution": "La révolution comme fantasme répétitif",
-        "écologie": "L’écologie comme mantra de survie",
+        "écologie": "L'écologie comme mantra de survie",
         "sécurité": "La sécurité comme armure du pouvoir",
         "france": "La France comme totem national",
         "liberté": "La liberté comme mot-piège",
-        "égalité": "L’égalité comme promesse répétée",
+        "égalité": "L'égalité comme promesse répétée",
         "réforme": "La réforme comme fuite en avant",
         "crise": "La crise comme justification permanente",
-        "avenir": "L’avenir comme horizon vide"
+        "avenir": "L'avenir comme horizon vide"
     },
     "fissure": {
         "nous_dominant": "Un sujet dissous dans le corps social pour éviter la singularité.",
@@ -79,20 +79,20 @@ VULGUS_CORPUS = {
     },
     "dependance": {
         "positif": "Si {s1} est détourné·e, le mythe vacille.",
-        "négatif": "Si {s1} n’est pas surmonté·e, tout s’effondre.",
-        "action": "Si l’action échoue, le discours devient ridicule.",
+        "négatif": "Si {s1} n'est pas surmonté·e, tout s'effondre.",
+        "action": "Si l'action échoue, le discours devient ridicule.",
         "equilibre": "Le mot-clé est intégré et son échec est géré par la structure.",
-        "refus_actif": "Si la contestation s’organise, l’identité discursive s’effondre.",
+        "refus_actif": "Si la contestation s'organise, l'identité discursive s'effondre.",
         "default": "Si {s1} perd son sens, le vide apparaît."
     },
     "risque": {
-        "personne": "Un système qui s’est rendu dépendant de l’Homme-Providence.",
-        "institution": "Un système qui s’est rendu dépendant de l’Homme-Providence.",
-        "mot": "Un mot qui, s’il perd son sens, révèle le vide."
+        "personne": "Un système qui s'est rendu dépendant de l'Homme-Providence.",
+        "institution": "Un système qui s'est rendu dépendant de l'Homme-Providence.",
+        "mot": "Un mot qui, s'il perd son sens, révèle le vide."
     },
     "conclusion": {
         "FORCLUSION": "Un pouvoir en forclusion — le réel est nié.",
-        "SURRÉGIME": "Un pouvoir en surrégime — prêt à l’implosion.",
+        "SURRÉGIME": "Un pouvoir en surrégime — prêt à l'implosion.",
         "ATTENTION": "Un pouvoir fragile — tenu par un fil.",
         "STABLE": "Un pouvoir fondé sur le Réel — et non sur la répétition.",
         "CONFIANCE": "Un pouvoir fondé sur le Réel — et non sur la répétition."
@@ -107,14 +107,14 @@ def nettoyer_texte(texte: str) -> str:
     texte = re.sub(r'\s+', ' ', texte).strip()
     return texte.lower()
 
-def detect_s1_global(text_or_doc: Any, nlp_or_doc: Any) -> Tuple[str, float, Counter]:
-    """Accepte texte brut + None OU doc spaCy + nlp"""
-    if nlp_or_doc is None or isinstance(text_or_doc, str):
+def detect_s1_global(input_data: Any, nlp: Any = None) -> Tuple[str, float, Counter]:
+    """Traite texte brut OU doc spaCy"""
+    if isinstance(input_data, str):
         # Fallback NLTK
-        words = [w.lower() for w in text_or_doc.split() if w.isalpha() and len(w) > 2 and w not in STOPWORDS_FR]
+        words = [w.lower() for w in input_data.split() if w.isalpha() and len(w) > 2 and w not in STOPWORDS_FR]
     else:
         # spaCy doc
-        words = [t.lemma_.lower() for t in nlp_or_doc if t.is_alpha and not t.is_stop and len(t.lemma_) > 2]
+        words = [t.lemma_.lower() for t in input_data if t.is_alpha and not t.is_stop and len(t.lemma_) > 2]
     freq = Counter(words)
     total = sum(freq.values())
     if total == 0:
@@ -156,8 +156,12 @@ def analyze_discourse_v25(text: str, lang: str = "Français") -> Dict:
     texte_net = nettoyer_texte(text)
 
     # --- S1 GLOBAL (Ψ stable) ---
-    doc = nlp(texte_net) if nlp else texte_net
-    s1, centralite, freq = detect_s1_global(doc, nlp if nlp else None)
+    if nlp:
+        doc = nlp(texte_net)
+        s1, centralite, freq = detect_s1_global(doc)
+    else:
+        s1, centralite, freq = detect_s1_global(texte_net)
+    
     total_mots = sum(freq.values())
     count_s1 = freq[s1]
     psi = compute_psi(s1, centralite, count_s1, total_mots)
@@ -172,10 +176,14 @@ def analyze_discourse_v25(text: str, lang: str = "Français") -> Dict:
     s1_history = []
     regimes = []
     key_moments = []
+    
     for i, block in enumerate(blocks):
         block_net = nettoyer_texte(block)
-        block_doc = nlp(block_net) if nlp else block_net
-        block_s1 = detect_s1_global(block_doc, nlp if nlp else None)[0]
+        if nlp:
+            block_doc = nlp(block_net)
+            block_s1 = detect_s1_global(block_doc)[0]
+        else:
+            block_s1 = detect_s1_global(block_net)[0]
         s1_history.append(block_s1)
         polarity_val = TextBlob(block).sentiment.polarity
         changes = len(set(s1_history[-3:])) if len(s1_history) >= 3 else 1
@@ -191,7 +199,7 @@ def analyze_discourse_v25(text: str, lang: str = "Français") -> Dict:
 
     # --- RAPPORT NARRATIF (v1.0) ---
     icone = "FORCLUSION" if psi > 90 else "SURRÉGIME" if psi > 80 else "ATTENTION" if psi > 65 else "CONFIANCE" if psi < 50 else "STABLE"
-    ancrage = VULGUS_CORPUS["ancrage"].get(s1, f"L’obsession de « {s1} » comme acte de pouvoir")
+    ancrage = VULGUS_CORPUS["ancrage"].get(s1, f"L'obsession de « {s1} » comme acte de pouvoir")
     fissure = (
         VULGUS_CORPUS["fissure"]["nous_dominant"] if ratio_nous_je > 3 else
         VULGUS_CORPUS["fissure"]["je_absent"] if je == 0 else
@@ -200,7 +208,7 @@ def analyze_discourse_v25(text: str, lang: str = "Français") -> Dict:
     )
     projet = VULGUS_CORPUS["projet"]["suture_sociale"] if nous > 10 else VULGUS_CORPUS["projet"]["maitrise_directe"]
     rituel = f"Répéter « {s1} » {count_s1} fois pour faire taire le doute."
-    contrat = f"Vous devez {s1} — sinon tout s’effondre."
+    contrat = f"Vous devez {s1} — sinon tout s'effondre."
     dependance = (
         VULGUS_CORPUS["dependance"]["equilibre"] if psi < 50 else
         VULGUS_CORPUS["dependance"]["refus_actif"] if s1 == "refuser" else
