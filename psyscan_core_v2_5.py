@@ -1,7 +1,7 @@
 # psyscan_core_v2_5.py
-# PSYSCAN v2.5 — Moteur fusion v1.0 + v2.1
+# PSYSCAN v2.5.
 # Licence : AGPL-3.0
-# Auteur : NAHT LIKE YOU THINK + Grok (fusion)
+# Auteur : NAHT LIKE YOU THINK
 
 import streamlit as st
 import nltk
@@ -9,12 +9,12 @@ from nltk.tokenize import sent_tokenize
 from textblob import TextBlob
 import spacy
 from langdetect import detect, DetectorFactory
-from collections import Counter, defaultdict
+from collections import Counter
 import re
 import textwrap
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Any
 
-DetectorFactory.seed = 0  # Pour résultats déterministes
+DetectorFactory.seed = 0  # Déterminisme
 
 # --- NLTK ---
 def ensure_nltk_data():
@@ -27,12 +27,14 @@ ensure_nltk_data()
 
 # --- spaCy ---
 LANG_MODELS = {'fr': 'fr_core_news_sm', 'en': 'en_core_web_sm'}
-@st.cache_resource
-def load_spacy_model(lang_code):
+
+@st.cache_resource(show_spinner=False)
+def load_spacy_model(lang_code: str):
     model_name = LANG_MODELS.get(lang_code, 'fr_core_news_sm')
     try:
         return spacy.load(model_name)
-    except:
+    except Exception as e:
+        st.warning(f"spaCy indisponible ({e}) → fallback NLTK")
         return None
 
 # --- STOPWORDS & ARTÉFACTS ---
@@ -105,11 +107,14 @@ def nettoyer_texte(texte: str) -> str:
     texte = re.sub(r'\s+', ' ', texte).strip()
     return texte.lower()
 
-def detect_s1_global(text: str, nlp) -> Tuple[str, float, Counter]:
-    if nlp is None:
-        words = [w.lower() for w in text.split() if w.isalpha() and len(w) > 2 and w not in STOPWORDS_FR]
+def detect_s1_global(text_or_doc: Any, nlp_or_doc: Any) -> Tuple[str, float, Counter]:
+    """Accepte texte brut + None OU doc spaCy + nlp"""
+    if nlp_or_doc is None or isinstance(text_or_doc, str):
+        # Fallback NLTK
+        words = [w.lower() for w in text_or_doc.split() if w.isalpha() and len(w) > 2 and w not in STOPWORDS_FR]
     else:
-        words = [t.lemma_.lower() for t in nlp(text) if t.is_alpha and not t.is_stop and len(t.lemma_) > 2]
+        # spaCy doc
+        words = [t.lemma_.lower() for t in nlp_or_doc if t.is_alpha and not t.is_stop and len(t.lemma_) > 2]
     freq = Counter(words)
     total = sum(freq.values())
     if total == 0:
@@ -131,7 +136,7 @@ def compute_psi(s1: str, centralite: float, count_s1: int, total: int) -> float:
 
 def polarite_s1(text: str, s1: str) -> str:
     blob = TextBlob(text)
-    sentences = [s for s in blob.sentences if s1 in s.lower()]
+    sentences = [s for s in blob.sentences if s1.lower() in s.lower()]
     if not sentences:
         return "neutre"
     polarity = sum(s.sentiment.polarity for s in sentences) / len(sentences)
@@ -151,7 +156,8 @@ def analyze_discourse_v25(text: str, lang: str = "Français") -> Dict:
     texte_net = nettoyer_texte(text)
 
     # --- S1 GLOBAL (Ψ stable) ---
-    s1, centralite, freq = detect_s1_global(texte_net, nlp)
+    doc = nlp(texte_net) if nlp else texte_net
+    s1, centralite, freq = detect_s1_global(doc, nlp if nlp else None)
     total_mots = sum(freq.values())
     count_s1 = freq[s1]
     psi = compute_psi(s1, centralite, count_s1, total_mots)
@@ -161,14 +167,15 @@ def analyze_discourse_v25(text: str, lang: str = "Français") -> Dict:
     # --- SISMO (pour visu) ---
     nltk_lang = 'french' if lang_code == 'fr' else 'english'
     sentences = sent_tokenize(text, language=nltk_lang)
-    block_size = 6  # Fixe entre 5 et 7
+    block_size = 6
     blocks = [' '.join(sentences[i:i + block_size]) for i in range(0, len(sentences), block_size)]
     s1_history = []
     regimes = []
     key_moments = []
-
     for i, block in enumerate(blocks):
-        block_s1 = detect_s1_global(nettoyer_texte(block), nlp)[0]
+        block_net = nettoyer_texte(block)
+        block_doc = nlp(block_net) if nlp else block_net
+        block_s1 = detect_s1_global(block_doc, nlp if nlp else None)[0]
         s1_history.append(block_s1)
         polarity_val = TextBlob(block).sentiment.polarity
         changes = len(set(s1_history[-3:])) if len(s1_history) >= 3 else 1
@@ -185,18 +192,22 @@ def analyze_discourse_v25(text: str, lang: str = "Français") -> Dict:
     # --- RAPPORT NARRATIF (v1.0) ---
     icone = "FORCLUSION" if psi > 90 else "SURRÉGIME" if psi > 80 else "ATTENTION" if psi > 65 else "CONFIANCE" if psi < 50 else "STABLE"
     ancrage = VULGUS_CORPUS["ancrage"].get(s1, f"L’obsession de « {s1} » comme acte de pouvoir")
-    fissure = (VULGUS_CORPUS["fissure"]["nous_dominant"] if ratio_nous_je > 3 else
-               VULGUS_CORPUS["fissure"]["je_absent"] if je == 0 else
-               VULGUS_CORPUS["fissure"]["maturite"] if 0.7 <= ratio_nous_je <= 1.3 and psi < 60 else
-               VULGUS_CORPUS["fissure"]["je_isolé"])
+    fissure = (
+        VULGUS_CORPUS["fissure"]["nous_dominant"] if ratio_nous_je > 3 else
+        VULGUS_CORPUS["fissure"]["je_absent"] if je == 0 else
+        VULGUS_CORPUS["fissure"]["maturite"] if 0.7 <= ratio_nous_je <= 1.3 and psi < 60 else
+        VULGUS_CORPUS["fissure"]["je_isolé"]
+    )
     projet = VULGUS_CORPUS["projet"]["suture_sociale"] if nous > 10 else VULGUS_CORPUS["projet"]["maitrise_directe"]
     rituel = f"Répéter « {s1} » {count_s1} fois pour faire taire le doute."
     contrat = f"Vous devez {s1} — sinon tout s’effondre."
-    dependance = (VULGUS_CORPUS["dependance"]["equilibre"] if psi < 50 else
-                  VULGUS_CORPUS["dependance"]["refus_actif"] if s1 == "refuser" else
-                  VULGUS_CORPUS["dependance"]["positif"].format(s1=s1) if polarite == "positif" else
-                  VULGUS_CORPUS["dependance"]["négatif"].format(s1=s1) if polarite == "négatif" else
-                  VULGUS_CORPUS["dependance"]["action"])
+    dependance = (
+        VULGUS_CORPUS["dependance"]["equilibre"] if psi < 50 else
+        VULGUS_CORPUS["dependance"]["refus_actif"] if s1 == "refuser" else
+        VULGUS_CORPUS["dependance"]["positif"].format(s1=s1) if polarite == "positif" else
+        VULGUS_CORPUS["dependance"]["négatif"].format(s1=s1) if polarite == "négatif" else
+        VULGUS_CORPUS["dependance"]["action"]
+    )
     risque = VULGUS_CORPUS["risque"]["institution"] if nous > je * 2 else VULGUS_CORPUS["risque"]["personne"]
     conclusion = VULGUS_CORPUS["conclusion"][icone]
     axiome = f"Le {s1.upper()} ({polarite}) suture la faille via la boucle collective."
