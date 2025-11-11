@@ -132,11 +132,14 @@ def nettoyer_texte(texte: str) -> str:
     return texte.lower()
 
 def detect_s1_global(input_data: Any) -> Tuple[str, float, Counter]:
-    """Traite texte brut OU doc spaCy"""
     if isinstance(input_data, str):
-        words = [w.lower() for w in input_data.split() if w.isalpha() and len(w) > 2 and w not in STOPWORDS_FR]
+        # Fallback texte brut → filtre strict
+        words = [w.lower() for w in re.findall(r'\b[a-zA-ZÀ-ÿ]{3,}\b', input_data) 
+                 if w.lower() not in STOPWORDS_FR and w.lower() not in ORAL_ARTIFACTS]
     else:
-        words = [t.lemma_.lower() for t in input_data if t.is_alpha and not t.is_stop and len(t.lemma_) > 2]
+        # spaCy → lemmatisation + stop
+        words = [t.lemma_.lower() for t in input_data 
+                 if t.is_alpha and not t.is_stop and len(t.lemma_) > 2]
     freq = Counter(words)
     total = sum(freq.values())
     if total == 0:
